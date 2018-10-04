@@ -1,3 +1,4 @@
+package com.stingraytradingsolutions.tradesource;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
