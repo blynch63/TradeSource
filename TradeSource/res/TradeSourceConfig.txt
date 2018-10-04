@@ -1,0 +1,15 @@
+*****************************************************************
+*   Data directory PARAMETERS
+*****************************************************************
+InputDataDirectory:test1
+OutputDataDirectory:test2
+*****************************************************************
+*   ZONE TOOL PARAMETERS
+*****************************************************************
+NumberofPricesBarsToAverage:100
+MinimumZoneSizePercentage:5
+OversizedZonePercentage:32
+ToolNearClosePercentage:10
+ToolNearZonePercentage:10
+OversizedZoneReductionPercentage:50
+ExpandedZonePercentage:25
