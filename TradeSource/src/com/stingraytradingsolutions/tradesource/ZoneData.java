@@ -39,7 +39,9 @@ public class ZoneData extends PriceData{
 		//this.newField = newFieldClassConstructor;
 	}
 	/**
-	*  This method will calculate the Average Range and Zone Statistics 
+	*  This method will calculate the Average Range and Zone Statistics found in Appendix G.6, for each market and time period (Monthly, Weekly, Daily).
+	*  The statistics are calculated based the minimum number of price bars to use as defined in the configuration file.  These statistics include: Average Range,
+	*  Size of a Single Tool Zone, Size of an Oversized Zone, and the Maximum Focus Risk.
 	*/
 	public ZoneStatistics setAverageRangeandZoneStatistics(ArrayList <ZoneData> alPriceData, Properties p, ZoneStatistics zs)
 	{
@@ -115,9 +117,7 @@ public class ZoneData extends PriceData{
 		int row = 0;
 		int size=alZoneRules.size();  
 		int toolsUsedinZone = size;
-		//*double zoneHigh = Collections.max(alValues);
-		//*double zoneLow = Collections.min(alValues);	
-		//*double zoneWidth = (zoneHigh - zoneLow);
+
 
 		//***************************************************************************************************************************************
 		//*  Apply Zone Rule 1:
@@ -159,8 +159,6 @@ public class ZoneData extends PriceData{
 		//*
 		//*  Near  = within 10% +/- of the close
 		//***************************************************************************************************************************************
-		//if (size > 1)
-		//{
 			for(row=0;row<size;row++)
 			{
 				ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
@@ -174,12 +172,8 @@ public class ZoneData extends PriceData{
 					}
 				}
 			}
-		//}
-		//else
-		//{
-		//	toolsUsedinZone++;
-		//}
 		setZoneBoundaries(alZoneRules, T, zoneName);
+		
 		//***************************************************************************************************************************************
 		//*  Apply Zone Rule 3
 		//*
@@ -218,34 +212,9 @@ public class ZoneData extends PriceData{
 					alZoneRules.add(ZoneRulesTools2);															//* create new entry for expanded tool value(low) in tool array list			
 					//*alValues.add(SingleToolZone.getExpandedLowValue());											//* create new entry for expanded tool value(low) in values array list
 					size ++;
-					break;
-
-					
-					//* String name = ZoneRulesTools.zoneToolLabel;
-					//* double toolValue = ZoneRulesTools.zoneToolValue;
-					//* double highToolValue = ZoneRulesTools.zoneToolValue + zs.minimumZoneSize;
-					//* double lowToolValue = ZoneRulesTools.zoneToolValue - zs.minimumZoneSize;
-					//* Update 
-					//* ZoneRulesTools.setZoneToolValue(highToolValue); //* update expanded tool value(high) in object
-					//* alZoneRules.set(row, ZoneRulesTools);			//* update expanded tool value(high) in tool array list
-					//* alValues.set(row, highToolValue);				//* update expanded tool value(high) in values array list
-					//* ZoneTools ZoneRulesTools2 = new ZoneTools(name, lowToolValue, true); //* create new object for expanded tool value(low)
-					//* alZoneRules.add(ZoneRulesTools2);				//* create new entry for expanded tool value(low) in tool array list			
-					//* alValues.add(lowToolValue);						//* create new entry for expanded tool value(low) in values array list
-					//* size ++;
-					//* break;
+					break;			
 				}
 			}
-			//* Rebuild the values array list with the values for each tool that was used to define the zone 
-			//*alValues.clear();
-			//for(row=0;row<size;row++)
-			//{
-			//	ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
-			//	if (ZoneRulesTools.zoneToolUsed == true)
-			//	{
-					//*alValues.add(ZoneRulesTools.zoneToolValue);
-			//	}
-			//}
 			setZoneBoundaries(alZoneRules, T, zoneName);
 		}
 		//***************************************************************************************************************************************
@@ -255,11 +224,7 @@ public class ZoneData extends PriceData{
 		//* sides to create the minimum sized zone
 		//***************************************************************************************************************************************
 		if (toolsUsedinZone > 1)
-		{
-			//* should delete double zoneHigh = Collections.max(alValues);
-			//* should delete double zoneLow = Collections.min(alValues);	
-			//* should delete double zoneWidth = (zoneHigh - zoneLow);
-			
+		{		
 			if (T.zoneWidth < zs.minimumZoneSize)
 			{	
 				double zoneVariance = (zs.minimumZoneSize - T.zoneWidth)/2;
@@ -273,7 +238,6 @@ public class ZoneData extends PriceData{
 							double highToolValue = ZoneRulesTools.zoneToolValue + zoneVariance;
 							ZoneRulesTools.setZoneToolValue(highToolValue);
 							alZoneRules.set(row, ZoneRulesTools);
-							//*alValues.add(highToolValue);
 						}
 						else
 						{
@@ -282,7 +246,6 @@ public class ZoneData extends PriceData{
 								double lowToolValue = ZoneRulesTools.zoneToolValue - zoneVariance;
 								ZoneRulesTools.setZoneToolValue(lowToolValue);
 								alZoneRules.set(row, ZoneRulesTools);
-								//*alValues.add(lowToolValue);
 							}
 						}
 					}
@@ -398,22 +361,10 @@ public class ZoneData extends PriceData{
 							break;
 						}
 					}
-					//* Rebuild the values array list with the values for each tool that was used to define the zone 
-					//*alValues.clear();
-					//for(row=0;row<size;row++)
-					//{
-					//	ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
-					//	if (ZoneRulesTools.zoneToolUsed == true)
-					//	{
-							//*alValues.add(ZoneRulesTools.zoneToolValue);
-					//	}
-					//}
 					setZoneBoundaries(alZoneRules, T, zoneName);
 				}
 			}
-		}
-				
-
+		}		
 
 		//***************************************************************************************************************************************
 		//*  Apply Zone Rule 5A
@@ -521,17 +472,6 @@ public class ZoneData extends PriceData{
 							break;
 						}
 					}
-					//* Rebuild the values array list with the values for each tool that was used to define the zone 
-					//*alValues.clear();
-					//for(row=0;row<size;row++)
-					//{
-					//	ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
-					//	if (ZoneRulesTools.zoneToolUsed == true)
-					//	{
-							//*alValues.add(ZoneRulesTools.zoneToolValue);
-					//	}
-					//}
-
 					setZoneBoundaries(alZoneRules, T, zoneName);
 				}
 			}
@@ -552,28 +492,6 @@ public class ZoneData extends PriceData{
 	 */
 	public void applyZoneRule6(PriceData T, Properties p)
 	{
-	// define near the B zone
-	// loop throught the T.a$1_1_Dota zone al 
-	//   if a tool is near B zone
-	//  	set T.a tool flag to not used
-	//  	move a tool to T.B zone al
-	//  end if
-	//load T.a al into al
-	//call setZoneBoundaries passing T, ai, zone 'a'
-	//load T.b al into al
-	//call setZoneBoundaries passing T, ai, zone 'b'
-	
-	//define near the C zone
-	//loop throught the T.$1_1_Dota zone al 
-	//  if a tool is near B zone
-	//  	set T.a tool flag to not used
-	//  	move a tool to T.B zone al
-	//  end if
-	//load T.a al into al
-	//call setZoneBoundaries passing T, ai, zone 'a'
-	//load T.b al into al
-	//call setZoneBoundaries passing T, ai, zone 'b'
-	
 		//***************************************************************************************************************************************
 		//Apply Rule 6 for C and D zones 
     	//***************************************************************************************************************************************    
@@ -747,7 +665,31 @@ public class ZoneData extends PriceData{
 		T.zoneLow = Collections.min(alZoneToolsValue);
 		T.zoneWidth = T.zoneHigh - T.zoneLow;
 	}
-	
+
+	/**
+	 *  This method will define the zones for the 4 zones for each type of trading.
+	 *  
+	 *  Input:  Current Price Data object
+	 *  		Array list of the PriceData object for all prices the have been read 
+	 *  		Properties file that contains the zone tool parameters to build the Zone Statistics in Appendix G.6
+	 *  
+	 *   Output: Current Price Data object updated with the details for each zone including:
+	 *   			- an array list that that contains
+	 *   				-the tools available to define the zone
+	 *   				- the tools that were actually used to define the zone after the Zone Rules were applied
+	 *   			- the zone high and low
+	 *   			- the purpose of the zone 
+	 *    
+	 *   Logic:
+	 *   	1.  Calculate the zone statistics based on price bars read so far
+	 *   	2.  For each type of trading:
+	 *   	3.		For each zone
+	 *   	4.			Load the array list with each tool that can be used to create a zone
+	 *   	5.			Apply the Zone Rules 2, 3, 4, 5, 5a, and 6
+	 *   	6.			Load the Price Data object with the tools the define each zone
+	 *   	7.			Determine the boundaries (high and low) of the zone and update the Price Data object
+	 *   	8.		Apply Rule 6      
+	 */
 	public void setZoneData(PriceData T, ArrayList <ZoneData> alPriceData, Properties p)
 	{
 		ZoneStatistics ZoneStats = new ZoneStatistics();
@@ -759,7 +701,7 @@ public class ZoneData extends PriceData{
 		
 		//ZoneRules ZoneRulesValues = new ZoneRules("",0.00);
 		//***************************************************************************************************************************************
-		//*  Define Zones for Trend Run Intact trading
+		//*  Define Zones for Trend Run Up Intact trading
 		//***************************************************************************************************************************************
 		if ((T.trendRunIntact) && (T.typeOfTradingDirection == "Up")) 
 		{
@@ -768,127 +710,97 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 
 			zoneName = "C";
-			//*alist.clear();
 			alZoneTools.clear();
 			
-			//*alist.add(T.redBirdDot);
 			ZoneTools ZoneToolsValues = new ZoneTools("Red Bird Dot",T.redBirdDot);
-			alZoneTools.add(ZoneToolsValues); 
-			
+			alZoneTools.add(ZoneToolsValues); 	
 		
-			//*alist.add(T.$6_5_Up);
 			ZoneTools ZoneToolsValues1 = new ZoneTools("6/5 Up",T.$6_5_Up);
 			alZoneTools.add(ZoneToolsValues1);			
 			
-			//*alist.add(T.$5_3_Up);
 			ZoneTools ZoneToolsValues2 = new ZoneTools("5/3 Up",T.$5_3_Up);
 			alZoneTools.add(ZoneToolsValues2);
 			
-			//*alist.add(T.mcLine);
 			ZoneTools ZoneToolsValues3 = new ZoneTools("MCL",T.mcLine);
 			alZoneTools.add(ZoneToolsValues3);
 			
-			//*alist.add(T.$1_1_Low);
 			ZoneTools ZoneToolsValues4 = new ZoneTools("1/1 Low",T.$1_1_Low);
 			alZoneTools.add(ZoneToolsValues4);
 			
 			if (T.plDotInRange)
 			{
-				//*alist.add(T.plDot);
 				ZoneTools ZoneToolsValues5 = new ZoneTools("PL Dot",T.plDot);
 				alZoneTools.add(ZoneToolsValues5);
 			}
 
-			//*applyZoneRules(alZoneTools, T, p, ZoneStats, alist, zoneName);
 			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
 			loadZoneToolsArray(alZoneTools, T, zoneName);
 			setZoneBoundaries(alZoneTools, T, zoneName);
-			//*applyZoneRule6(T, p);
-			
 			T.zoneCPurpose = "Where low forms to continue Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
 			zoneName = "A";
-			//*alist.clear();
 			alZoneTools.clear();
 			
-			//*alist.add(T.$5_9_Down);
 			ZoneTools ZoneToolsValues6 = new ZoneTools("5/9 Down",T.$5_9_Down);
-			
 			alZoneTools.add(ZoneToolsValues6);
 			
 			if (T.$5_2_Down_Deep || T.$5_2_Down_Regular)
 			{
-				//*alist.add(T.$5_2_Down);	
 				ZoneTools ZoneToolsValues7 = new ZoneTools("5/2 Down",T.$5_2_Down);
 				alZoneTools.add(ZoneToolsValues7);
 			}
 			
-			//*applyZoneRules(alZoneTools, T, p, ZoneStats, alist, zoneName);
 			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
 			loadZoneToolsArray(alZoneTools, T, zoneName);
 			setZoneBoundaries(alZoneTools, T, zoneName);
-			//*applyZoneRule6(T, p);
-			
 			T.zoneAPurpose = "Where high forms to continue Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
 			zoneName = "B";
-			//*alist.clear();
 			alZoneTools.clear();
 			
-			//*alist.add(T.$1_1_High);
 			ZoneTools ZoneToolsValues8 = new ZoneTools("1/1 High",T.$1_1_High);
 			alZoneTools.add(ZoneToolsValues8);
 			
 			if ((T.$5_1_Down >= T.lowPrice) && (T.$5_1_Down <= T.highPrice))
 			{
-				//*alist.add(T.$5_1_Down);
 				ZoneTools ZoneToolsValues9 = new ZoneTools("5/1 Down",T.$5_1_Down);
 				alZoneTools.add(ZoneToolsValues9);
 			}
 			if (T.$5_2_Down_Short)
 			{
-				//*alist.add(T.$5_2_Down);
 				ZoneTools ZoneToolsValues10 = new ZoneTools("5/2 Down Short",T.$5_2_Down);
 				alZoneTools.add(ZoneToolsValues10);
 			}
 			
-			//*applyZoneRules(alZoneTools, T, p, ZoneStats, alist, zoneName);
 			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
 			loadZoneToolsArray(alZoneTools, T, zoneName);
-			setZoneBoundaries(alZoneTools, T, zoneName);
-			//*applyZoneRule6(T, p);
-			
+			setZoneBoundaries(alZoneTools, T, zoneName);		
 			T.zoneBPurpose = "Where high forms to enter Congestion Entrance Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
 			zoneName = "D";
-			//*alist.clear();
 			alZoneTools.clear();
 			
-			//*alist.add(T.$6_1_Up);
 			ZoneTools ZoneToolsValues11 = new ZoneTools("6/1 Up",T.$6_1_Up);
 			alZoneTools.add(ZoneToolsValues11);
-			
-			//*alist.add(T.$5_9_Up);	
+				
 			ZoneTools ZoneToolsValues12 = new ZoneTools("5/9 Up",T.$5_9_Up);
 			alZoneTools.add(ZoneToolsValues12);
 			
 			if (T.plDotOutsideRange)
 			{
-				//*alist.add(T.plDot);
 				ZoneTools ZoneToolsValues13 = new ZoneTools("PL Dot",T.plDot);
 				alZoneTools.add(ZoneToolsValues13);
 			}
 			
-			//*applyZoneRules(alZoneTools, T, p, ZoneStats, alist, zoneName);
 			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
 			loadZoneToolsArray(alZoneTools, T, zoneName);
 			setZoneBoundaries(alZoneTools, T, zoneName);

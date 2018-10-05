@@ -1106,7 +1106,7 @@ public class PriceData
 	    	
 	    	//***************************************************************************************************************************************
 	    	// Calculate 6/2 Up, 6/4 Down, 6/6 Down
-	    	// The tools are not used in the PL methodology
+	    	// These tools are not used in the PL methodology
 	    	//***************************************************************************************************************************************
 	    	// $6_2_Up = ((T.highPrice * 4) - (T1.plDot *2) - T.highPrice);
 	    	// $6_4_Down = ((T.highPrice * 4) - (T1.plDot *2) - T.highPrice);
@@ -1270,46 +1270,6 @@ public class PriceData
 	    		}
 	    	
 	    	//***************************************************************************************************************************************
-			// Determine if the PL Dot momentum is exhausting or accelerating
-	    	//
-	    	// THIS CODE WAS MOVED TO THE SECTION "Determine if the PL Dot is Accelerating, Decreasing or Exhausting"
-	    	//***************************************************************************************************************************************
-
-			//double plDotAcceleratingExhaustingVariance = .4;			
-	    	//double plDotAcceleratingDistance  = (T1.distanceBetweenPlDots * (1 + plDotAcceleratingExhaustingVariance));
-	    	//double plDotExhaustDistance  = (T1.distanceBetweenPlDots * (1 - plDotAcceleratingExhaustingVariance));
-	    	//double plDotDeceleratingVariance = .5;
-	    	//double plDotDeceleratingDistance  = (T1.distanceBetweenPlDots * (1 - plDotDeceleratingVariance));
-			
-	    	//if ((T.trendRunUp) || (T.trendRunDown))
-	    	//	{
-	    	//	if (T.distanceBetweenPlDots >= plDotAcceleratingDistance)
-	    	//		{
-	    	//		T.plDotAccelerating = true;
-	    	//		//System.out.println("PL Dot Accelerating on " + T.priceDate); 
-	    	//		}
-	    	//	else
-	    	//	{
-	    	//		if (T.distanceBetweenPlDots <= plDotDeceleratingDistance)
-	    	//		{
-	    	//			T.plDotDecelerating = true;
-	    	//		}
-	    	//	}
-	    	//	}
-	    	//
-	    	//	
-	    	//if ((T.trendRunUp) || (T.trendRunDown))
-	    	//		{
-	    	//		if (T1.plDotAccelerating)
-	    	//			{
-	    	//			if (T.distanceBetweenPlDots <= plDotExhaustDistance)
-	    	//				{
-	    	//				plDotExhausting = true;
-	    	//				//System.out.println("PL Dot Exhausting on " + T.priceDate); 
-	    	//				}
-	    	//			}	
-	    	//		}
-	    	//***************************************************************************************************************************************
 			// 
 	    	// Determine if the PL Dot is Accelerating, Decreasing or Exhausting
 	    	//
@@ -1363,66 +1323,7 @@ public class PriceData
     	//***************************************************************************************************************************************
 		public void setTypeOfTrading(PriceData T, PriceData T1, PriceData T2, PriceData T3, PriceData T4)
 		{
-			//***************************************************************************************************************************************
-			//*
-			//* Set the high and low boundaries of the latest congestion parameters
-			//*
-	    	//***************************************************************************************************************************************
-			//double lastDottedLineValue =0;
-			//double lastCongestionParameterHigh =0;
-			//double lastCongestionParameterLow =0;
-//			if (T1.congestionParameterHigh > 0)
-//			{	
-//				LASTCONGESTIONPARAMETERHIGH = T1.congestionParameterHigh;
-//			}
-//			else
-//			{
-//				if (T2.congestionParameterHigh > 0)
-//				{	
-//					LASTCONGESTIONPARAMETERHIGH = T2.congestionParameterHigh;
-//				}
-//				else
-//				{
-//					if (T3.congestionParameterHigh > 0)
-//					{	
-//						LASTCONGESTIONPARAMETERHIGH = T3.congestionParameterHigh;
-//					}
-//					else
-//					{
-//						if (T4.congestionParameterHigh > 0)
-//						{	
-//							LASTCONGESTIONPARAMETERHIGH = T4.congestionParameterHigh;
-//						}
-//					}
-//				}
-//			}
-//			
-//			
-//			if (T1.congestionParameterLow > 0)
-//			{
-//				LASTCONGESTIONPARAMETERLOW = T1.congestionParameterLow;
-//			}
-//			else
-//			{
-//				if (T2.congestionParameterLow > 0)
-//				{
-//					LASTCONGESTIONPARAMETERLOW = T2.congestionParameterLow;
-//				}
-//				else
-//				{
-//					if (T3.congestionParameterLow > 0)
-//					{
-//						LASTCONGESTIONPARAMETERLOW = T3.congestionParameterLow;
-//					}
-//					else
-//					{
-//						if (T4.congestionParameterLow > 0)
-//						{
-//							LASTCONGESTIONPARAMETERLOW = T4.congestionParameterLow;
-//						}
-//					}
-//				}	
-//			}
+
 			//***************************************************************************************************************************************
 			//*  Identify if the Trend Run is Intact, Slowing, or Aborting
 			//*
@@ -1485,123 +1386,8 @@ public class PriceData
 				}
 				System.out.println("Date: "+ T.priceDate + " Type of Trading: " + T.typeOfTrading + T.typeOfTradingDirection );
 			}
-			
-			
-			
-// comement out for the simpler approach above			
-//			if (T.trendRunUp) 
-//			{		
-//					if ((T.plDotMomentumEquidistant) || (T.plDotMomentumIncreasing))
-//					{	
-//						if ((T.plDotInLowEndOfRange) || (T.plDotBelowRange))
-//						{
-//							if ((T.closeInHighEndOfRange) || (T.closeWellAbovePLDot))
-//							{
-//								//if (T.closeWellAboveMCL)			
-//								//{
-//									T.trendRunIntact = true;
-//									T.typeOfTrading = "Trend Run Intact";
-//									T.typeOfTradingDirection = "Up";
-//									System.out.println("Trend Run Intact:" +" Date: "+ T.priceDate);
-//								//}
-//							}
-//						}
-//					}
-//			}
-//			
-//			if (T.trendRunDown) 
-//			{
-//				if ((T.plDotMomentumEquidistant) || (T.plDotMomentumIncreasing))
-//				{
-//					if ((T.plDotInHighEndOfRange) || (T.plDotAboveRange))
-//					{
-//						if ((T.closeInLowEndOfRange) || (T.closeWellBelowPLDot))
-//						{
-//							//if (T.closeWellBelowMCL)			
-//							//{
-//								T.trendRunIntact = true;
-//								T.typeOfTrading = "Trend Run Intact";
-//								T.typeOfTradingDirection = "Down";
-//								System.out.println("Trend Run Intact:" +" Date: "+ T.priceDate);
-//							//}
-//						}
-//					}
-//				}
-//			}
-//	    	//***************************************************************************************************************************************
-//			//*  Identify if the trend run is slowing
-//	    	//***************************************************************************************************************************************
-//			if ((T.plDotMomentumDecreasing) || (T.plDotMomentumEquidistant))
-//			{
-//				if (T.trendRunUp) 
-//				{	
-//					if ((T.plDotInMiddleOfRange) || (T.plDotInLowEndOfRange)) 
-//					{
-//						if ((T.mcLine > T.closePrice) || (T.$6_1_Down > T.closePrice))
-//						{
-//							if ((T.closeInMiddleOfRange) || (T.closeInLowEndOfRange))			
-//							{
-//								T.trendRunSlowing = true;
-//								T.typeOfTrading = "Trend Run Slowing";
-//								T.typeOfTradingDirection = "Up";
-//								System.out.println("Trend Run Slowing:" +" Date: "+ T.priceDate);
-//							}
-//						}
-//					}
-//				}
-//				else
-//				{
-//					if (T.trendRunDown)
-//					{
-//						if ((T.plDotInMiddleOfRange) || (T.plDotInHighEndOfRange)) 		
-//						{
-//							if ((T.mcLine < T.closePrice) || (T.$6_1_Up < T.closePrice))
-//							{
-//								//if ((T.closeInMiddleOfRange) || (T.closeInHighEndOfRange))			
-//								//{
-//									T.trendRunSlowing = true;
-//									T.typeOfTrading = "Trend Run Slowing";
-//									T.typeOfTradingDirection = "Down";
-//									System.out.println("Trend Run Slowing:" +" Date: "+ T.priceDate);
-//								//}
-//							}	
-//						}
-//					}
-//				}
-//			}
-//	    	//***************************************************************************************************************************************
-//			//*  Identify if the trend run is aborting
-//	    	//***************************************************************************************************************************************
-//			if (T.trendRunUp) 
-//			{		
-//					//*if ((T.plDotDecelerating) || (T.plDotMomentumDecreasing))
-//					if (T.plDotExhausting) 
-//					{	
-//						if ((T.plDot > T.closePrice) && (T.mcLine > T.closePrice))
-//						{
-//							T.trendRunAborting = true;
-//							T.typeOfTrading = "Trend Run Aborting";
-//							T.typeOfTradingDirection = "Up";
-//							System.out.println("Trend Run Aborting: " +" Date: "+ T.priceDate);
-//						}				
-//					}
-//			}
-//			
-//			if (T.trendRunDown) 
-//			{
-//				//*if ((T.plDotDecelerating) || (T.plDotMomentumDecreasing))
-//				if (T.plDotExhausting) 
-//				{	
-//					if ((T.plDot < T.closePrice) && (T.mcLine < T.closePrice))
-//					{	
-//						T.trendRunAborting = true;
-//						T.typeOfTrading = "Trend Run Aborting";
-//						T.typeOfTradingDirection = "Down";
-//						System.out.println("Trend Run Aborting: " +" Date: "+ T.priceDate);
-//						
-//					}
-//				}
-//			}
+						
+
 	    	//***************************************************************************************************************************************
 			//Determine if the type of trading is in Day 1 of Congestion Entrance
 	    	//***************************************************************************************************************************************
@@ -1660,14 +1446,7 @@ public class PriceData
 			// Determine if the type of trading is Congestion Action
 	    	// Set block level on T
 	    	//***************************************************************************************************************************************
-//	    	if (lastDottedLineValue ==0)
-//	    	{
-//	    		T.typeOfTrading = "Missing Dotted Line";
-//	    		T.typeOfTradingDirection = "?";
-//	    		System.out.println("Missing Dotted Line: " +" Date: "+ T.priceDate);	
-//	    	}
-//	    	else
-//	    	{
+
 			if ((!T.trendRunUp) && (!T.trendRunDown))
 			{
 				if (((T1.congestionEntranceUpDay1) || (T1.congestionEntranceUpDay2) || (T1.congestionActionUp) || (T1.congestionActionContinuedUp)) && ((T.closeBelowPLDot) && (T.closePrice >= LASTCONGESTIONPARAMETERLOW) && (T.closePrice <= LASTCONGESTIONPARAMETERHIGH)))
@@ -1718,7 +1497,7 @@ public class PriceData
 		    		}
 		    	}
 			}	
-//	    	}
+
 	    	
 	    	//***************************************************************************************************************************************
 			// Determine if the type of trading is Congestion Action Continued
@@ -1745,50 +1524,9 @@ public class PriceData
 		    		}
 		    	}
 			}
+
 	    	//***************************************************************************************************************************************
-			// Determine if the type of trading is Congestion Exit (violating the block level) when in Congestion Action Trading
-	    	//***************************************************************************************************************************************
-//	    	if ((T1.congestionAction)  && (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
-//	    	{
-//	    		T.congestionExit = true;
-//	    		T.congestionExitUp = true;
-//	    		T.typeOfTrading = "Congestion Exit";
-//	    		T.typeOfTradingDirection = "Up";
-//	    		System.out.println("Congestion Exit Up: " +" Date: "+ T.priceDate);
-//	    	}
-//	    	else
-//	    	{
-//	    		if ((T1.congestionAction) && (T.closePrice < LASTCONGESTIONPARAMETERLOW))
-//	    		{
-//	    			T.congestionExit = true;
-//	    			T.congestionExitDown = true;
-//		    		T.typeOfTrading = "Congestion Exit";
-//		    		T.typeOfTradingDirection = "Down";
-//		    		System.out.println("Congestion Exit Down: " +" Date: "+ T.priceDate);
-//	    		}
-//	    	}
-	    	//******** delete complex logic below 
-	    	//if ((T1.congestionActionUp) && (T1.topSideBlockLevel) && (T.closeAbovePLDot) && (T.closePrice > T1.highPrice))
-	    	//{
-	    	//	T.congestionExit = true;
-	    	//	T.congestionExitUp = true;
-	    	//	T.typeOfTrading = "Congestion Exit";
-	    	//	T.typeOfTradingDirection = "Up";
-	    	//	System.out.println("Congestion Exit Up: " +" Date: "+ T.priceDate);
-	    	//}
-	    	//else
-	    	//{
-	    	//	if ((T1.congestionAction) && (T1.downSideBlockLevel) && (T.closeBelowPLDot) && (T.closePrice < T1.lowPrice))
-	    	//	{
-	    	//		T.congestionExit = true;
-	    	//		T.congestionExitDown = true;
-		    //		T.typeOfTrading = "Congestion Exit";
-		    //		T.typeOfTradingDirection = "Down";
-		    //		System.out.println("Congestion Exit Down: " +" Date: "+ T.priceDate);
-	    	//	}
-	    	//}
-	    	//***************************************************************************************************************************************
-			// Determine if the type of trading is Congestion Exit (violating the block level) when in Congestion Entrance or COngestion Action Trading
+			// Determine if the type of trading is Congestion Exit (violating the block level) when in Congestion Entrance or Congestion Action Trading
 	    	//***************************************************************************************************************************************
 			if ((!T.trendRunUp) && (!T.trendRunDown))
 			{
@@ -1815,69 +1553,7 @@ public class PriceData
 		    	}
 			}
 	    	
-//	    	if ((T1.congestionEntranceUpDay1) && (T1.topSideBlockLevel) && (T.closeAbovePLDot) && (T.closePrice < LASTCONGESTIONPARAMETERLOW) || (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
-//	    	{
-//	    		T.congestionExit = true;
-//	    		T.congestionExitUp = true;
-//	    		T.typeOfTrading = "Congestion Exit";
-//	    		T.typeOfTradingDirection = "Up";
-//	    		System.out.println("Congestion Exit Up: " +" Date: "+ T.priceDate);
-//	    	}
-//	    	else
-//	    	{
-//	    		if ((T1.congestionEntranceDownDay1) && (T1.downSideBlockLevel) && (T.closeBelowPLDot) && (T.closePrice < LASTCONGESTIONPARAMETERLOW) || (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
-//	    		{
-//	    			T.congestionExit = true;
-//	    			T.congestionExitDown = true;
-//		    		T.typeOfTrading = "Congestion Exit";
-//		    		T.typeOfTradingDirection = "Down";
-//		    		System.out.println("Congestion Exit Down: " +" Date: "+ T.priceDate);
-//	    		}
-//	    	}
 	    	
-	    	//***************************************************************************************************************************************
-			// Determine if the type of trading is Congestion Exit (violating the dotted line) when in Congestion Entrance Trading Day2
-	    	// THIS IS NEW TO ADDRESS CONGESTION EXIT THROUGHT THE DOTTED ON.  EXAMPLE 1/9/17
-	    	//***************************************************************************************************************************************
-//	    	if ((T1.congestionEntranceUpDay2) && (T.closePrice < LASTCONGESTIONPARAMETERLOW))
-//	    	{
-//	    		T.congestionExit = true;
-//	    		T.congestionExitDown = true;
-//	    		T.typeOfTrading = "Congestion Exit";
-//	    		T.typeOfTradingDirection = "Down";
-//	    		System.out.println("Congestion Exit Down: " +" Date: "+ T.priceDate);
-//	    	}
-//	    	else
-//	    	{
-//	    		if ((T1.congestionEntranceUpDay2) && (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
-//	    		{
-//		    		T.congestionExit = true;
-//		    		T.congestionExitUp = true;
-//		    		T.typeOfTrading = "Congestion Exit";
-//		    		T.typeOfTradingDirection = "Up";
-//		    		System.out.println("Congestion Exit Up: " +" Date: "+ T.priceDate);
-//	    		}
-//	    	}
-
-//	    	if ((T1.congestionEntranceDownDay2) && (T.closePrice < LASTCONGESTIONPARAMETERLOW))
-//	    	{
-//	   			T.congestionExit = true;
-//	   			T.congestionExitDown = true;
-//	    		T.typeOfTrading = "Congestion Exit";
-//	    		T.typeOfTradingDirection = "Down";
-//	    		System.out.println("Congestion Exit Down: " +" Date: "+ T.priceDate);
-//	    	}
-//	    	else
-//	    	{
-//	    		if ((T1.congestionEntranceDownDay2) && (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
-//		    	{
-//		   			T.congestionExit = true;
-//		   			T.congestionExitUp = true;
-//		    		T.typeOfTrading = "Congestion Exit";
-//		    		T.typeOfTradingDirection = "Up";
-//		    		System.out.println("Congestion Exit Up: " +" Date: "+ T.priceDate);
-//		    	}	
-//	    	}
 	    	
 	    	//***************************************************************************************************************************************
 			// Determine if the type of trading is Congestion Exit Day 2 
