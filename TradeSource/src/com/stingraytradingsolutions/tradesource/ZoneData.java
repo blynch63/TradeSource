@@ -122,7 +122,7 @@ public class ZoneData extends PriceData{
 		//***************************************************************************************************************************************
 		//*  Apply Zone Rule 1:
 		//*
-		//*	 1.	Negate all tools that have a null or NaN value
+		//*	 1.	Negate all tools that have a null (NaN) or 0 value
 		//*
 		//*  Logic:
 		//*  	Loop through the array list that contains the tools for the given zone 
@@ -142,37 +142,60 @@ public class ZoneData extends PriceData{
 				toolsUsedinZone--;	
 			}
 		}
-		setZoneBoundaries(alZoneRules, T, zoneName);
+		setCurrentZoneBoundaries(alZoneRules, T);
 		
 		
 		//***************************************************************************************************************************************
 		//*  Apply Zone Rule 2:
 		//*
-		//*	 1.	Negate all tools that form 'near' the close of the current price bar
+		//*	 	1.  Determine if all of the tools in the zone are near the close.  If they are, do not negate any of the tools.
+		//*		2.	Negate all tools that form 'near' the close of the current price bar
 		//*
 		//*  Logic:
 		//*  	Loop through the array list that contains the tools used for the given zone 
-		//*		Determine if the tool is 'near' the close
-		//*		Update the tool used flag
-		//*		Update the tool in the array list
-		//*		Update the counter that indicates how many tools are used in this zone
+		//*		Count the number of the tools that are 'near' the close		
+		//*  	If ALL of the tools in the zone are NOT near to the close
+		//*			Loop through the array list that contains the tools used for the given zone 
+		//*			Determine if the tool is 'near' the close
+		//*			Update the tool used flag
+		//*			Update the tool in the array list
+		//*			Update the counter that indicates how many tools are used in this zone
 		//*
 		//*  Near  = within 10% +/- of the close
 		//***************************************************************************************************************************************
-			for(row=0;row<size;row++)
+    	int nbrZoneToolsNearClose = 0;
+    	int nbrZoneToolsUsed = 0;
+		
+		for(row=0;row<size;row++)
+		{
+			ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
+			if (ZoneRulesTools.zoneToolUsed == true)
 			{
-				ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
-				if (ZoneRulesTools.zoneToolUsed == true)
-				{
-					if ((ZoneRulesTools.zoneToolValue > T.priceBarNearCloseLow) && (ZoneRulesTools.zoneToolValue < T.priceBarNearCloseHigh))
-					{
-						ZoneRulesTools.zoneToolUsed = false;
-						alZoneRules.set(row, ZoneRulesTools);
-						toolsUsedinZone--;	
-					}
+				nbrZoneToolsUsed++;
+				if ((ZoneRulesTools.zoneToolValue > T.priceBarNearCloseLow) && (ZoneRulesTools.zoneToolValue < T.priceBarNearCloseHigh))
+				{	
+					nbrZoneToolsNearClose++;
 				}
 			}
-		setZoneBoundaries(alZoneRules, T, zoneName);
+		}
+		
+		if (nbrZoneToolsNearClose != nbrZoneToolsUsed)
+		{
+			for(row=0;row<size;row++)
+				{
+					ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
+					if (ZoneRulesTools.zoneToolUsed == true)
+					{
+						if ((ZoneRulesTools.zoneToolValue > T.priceBarNearCloseLow) && (ZoneRulesTools.zoneToolValue < T.priceBarNearCloseHigh))
+						{
+							ZoneRulesTools.zoneToolUsed = false;
+							alZoneRules.set(row, ZoneRulesTools);
+							toolsUsedinZone--;	
+						}
+					}
+				}
+		}
+		setCurrentZoneBoundaries(alZoneRules, T);
 		
 		//***************************************************************************************************************************************
 		//*  Apply Zone Rule 3
@@ -215,7 +238,7 @@ public class ZoneData extends PriceData{
 					break;			
 				}
 			}
-			setZoneBoundaries(alZoneRules, T, zoneName);
+			setCurrentZoneBoundaries(alZoneRules, T);
 		}
 		//***************************************************************************************************************************************
 		//*  Apply Zone Rule 4
@@ -251,7 +274,7 @@ public class ZoneData extends PriceData{
 					}
 				}
 			}
-			setZoneBoundaries(alZoneRules, T, zoneName);
+			setCurrentZoneBoundaries(alZoneRules, T);
 		}
 
 		//***************************************************************************************************************************************
@@ -361,7 +384,7 @@ public class ZoneData extends PriceData{
 							break;
 						}
 					}
-					setZoneBoundaries(alZoneRules, T, zoneName);
+					setCurrentZoneBoundaries(alZoneRules, T);
 				}
 			}
 		}		
@@ -383,8 +406,8 @@ public class ZoneData extends PriceData{
 		//*			Update the tools array entry to indicate that the tool is not used
 		//***************************************************************************************************************************************
 		alToolsUsedValues.clear();
-		highestValue = 0;
-		lowestValue = 999999;
+		double zoneCToolValueClosestToPrices = 0;
+		double zoneBToolValueClosestToPrices = 0;
 		
 		if ((zoneName == "B") || (zoneName == "C"))  
 		{
@@ -401,33 +424,59 @@ public class ZoneData extends PriceData{
 						}
 					
 					}
-					int size2=alToolsUsedValues.size();
-					for(row=0;row<size2;row++)
+					if (zoneName == "C")
 					{
-						if (zoneName == "C")
+						if (Math.abs(T.lowPrice - alToolsUsedValues.get(0)) < Math.abs(T.lowPrice - alToolsUsedValues.get(1)))
 						{
-							if (alToolsUsedValues.get(row) > highestValue)
-							{
-								highestValue = alToolsUsedValues.get(row);
-							}
+							zoneCToolValueClosestToPrices = alToolsUsedValues.get(0);
 						}
 						else
 						{
-							if (zoneName == "B")
+							zoneCToolValueClosestToPrices = alToolsUsedValues.get(1);
+						}
+					}
+					else
+					{
+						if (zoneName == "B")
+						{
+							if (Math.abs(T.highPrice - alToolsUsedValues.get(0)) < Math.abs(T.highPrice - alToolsUsedValues.get(1)))
 							{
-								if (alToolsUsedValues.get(row) < lowestValue)
-								{
-									lowestValue = alToolsUsedValues.get(row);
-								}
+								zoneBToolValueClosestToPrices = alToolsUsedValues.get(0);
+							}
+							else
+							{
+								zoneBToolValueClosestToPrices = alToolsUsedValues.get(1);
 							}
 						}
 					}
+						
+//					int size2=alToolsUsedValues.size();
+//					for(row=0;row<size2;row++)
+//					{
+//						if (zoneName == "C")
+//						{
+//							if (alToolsUsedValues.get(row) > highestValue)
+//							{
+//								highestValue = alToolsUsedValues.get(row);
+//							}
+//						}
+//						else
+//						{
+//							if (zoneName == "B")
+//							{
+//								if (alToolsUsedValues.get(row) < lowestValue)
+//								{
+//									lowestValue = alToolsUsedValues.get(row);
+//								}
+//							}
+//						}
+//					}
 					if (zoneName == "C")
 					{
 						for(row=0;row<size;row++)
 						{
 							ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
-							if (ZoneRulesTools.zoneToolValue == highestValue)
+							if (ZoneRulesTools.zoneToolValue == zoneCToolValueClosestToPrices)
 							{
 								ZoneRulesTools.setZoneToolUsed(false);
 								alZoneRules.set(row, ZoneRulesTools);
@@ -440,13 +489,17 @@ public class ZoneData extends PriceData{
 						for(row=0;row<size;row++)
 						{
 							ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
-							if (ZoneRulesTools.zoneToolValue == lowestValue)
+							if (ZoneRulesTools.zoneToolValue == zoneBToolValueClosestToPrices)
 							{
 								ZoneRulesTools.setZoneToolUsed(false);
 								alZoneRules.set(row, ZoneRulesTools);
 							}
 						
 						}
+					}
+					if ((alToolsUsedValues.get(0)) == (alToolsUsedValues.get(1)))
+					{
+
 					}
 					//* Expand the single tool to define the zone
 					for(row=0;row<size;row++)
@@ -472,15 +525,10 @@ public class ZoneData extends PriceData{
 							break;
 						}
 					}
-					setZoneBoundaries(alZoneRules, T, zoneName);
+					setCurrentZoneBoundaries(alZoneRules, T);
 				}
 			}
 		}
-
-		//***************************************************************************************************************************************
-		//*  Apply Zone Rule 6
-		//***************************************************************************************************************************************
-
 	}
 	
 	/**
@@ -493,11 +541,12 @@ public class ZoneData extends PriceData{
 	public void applyZoneRule6(PriceData T, Properties p)
 	{
 		//***************************************************************************************************************************************
-		//Apply Rule 6 for C and D zones 
+		//Apply Rule 6 for A and B zones 
     	//***************************************************************************************************************************************    
 
 		ArrayList<ZoneTools> alZoneRule6Tools = new ArrayList<ZoneTools>();
 		String zoneName = "A";
+		boolean zoneAUpdated = false;
 		boolean zoneBUpdated = false;
 
 		//***************************************************************************************************************************************
@@ -506,27 +555,60 @@ public class ZoneData extends PriceData{
     	double zoneBNear  = (T.zoneBHigh - T.zoneBLow) / Double.parseDouble(p.getProperty("ToolNearZonePercentage"));
     	double zoneNearHigh = T.zoneBHigh + zoneBNear;
     	double zoneNearLow = T.zoneBLow - zoneBNear;
-		
+
+		//***************************************************************************************************************************************
+		//Determine if all tools in zone A would be 'NEAR', which would result in zone A having no tools.
+    	//***************************************************************************************************************************************    
     	int row = 0;
+    	int nbrZoneAToolsNear = 0;
+    	int nbrZoneAToolsUsed = 0;
 		int size=T.alZoneATools.size();
+		
 		for(row=0;row<size;row++)
 		{
 			ZoneTools ZoneRule6Tools = new ZoneTools(T.alZoneATools.get(row));
-			alZoneRule6Tools.add(ZoneRule6Tools);
 			if (ZoneRule6Tools.zoneToolUsed == true)
 			{
+				nbrZoneAToolsUsed++;
 				if ((ZoneRule6Tools.zoneToolValue >= zoneNearLow) && (ZoneRule6Tools.zoneToolValue <= zoneNearHigh))
 				{	
-					ZoneRule6Tools.setZoneToolUsed(false);
-					alZoneRule6Tools.set(row, ZoneRule6Tools);
-					T.alZoneATools.set(row, ZoneRule6Tools);
-					T.alZoneBTools.add(ZoneRule6Tools);
-					zoneBUpdated = true;
-					setZoneBoundaries(alZoneRule6Tools, T, zoneName);
+					nbrZoneAToolsNear++;
 				}
 			}
 		}
-		
+		//***************************************************************************************************************************************
+		//Determine of any tools in zone A 'NEAR' one B.
+    	//***************************************************************************************************************************************    
+		if (nbrZoneAToolsNear != nbrZoneAToolsUsed)
+		{		
+			for(row=0;row<size;row++)
+			{
+				ZoneTools ZoneRule6Tools = new ZoneTools(T.alZoneATools.get(row));
+				alZoneRule6Tools.add(ZoneRule6Tools);
+				if (ZoneRule6Tools.zoneToolUsed == true)
+				{
+					if ((ZoneRule6Tools.zoneToolValue >= zoneNearLow) && (ZoneRule6Tools.zoneToolValue <= zoneNearHigh))
+					{	
+						T.alZoneBTools.add(ZoneRule6Tools);
+						ZoneRule6Tools.setZoneToolUsed(false);
+						alZoneRule6Tools.set(row, ZoneRule6Tools);
+						T.alZoneATools.set(row, ZoneRule6Tools);
+						zoneAUpdated = true;
+						zoneBUpdated = true;
+					}
+				}
+			}
+		}
+		//***************************************************************************************************************************************
+		//Redefine the boundaries for Zone A if it's tools have been updated 
+    	//***************************************************************************************************************************************    		
+		if (zoneAUpdated)
+		{
+			setZoneBoundaries(alZoneRule6Tools, T, zoneName);	
+		}
+		//***************************************************************************************************************************************
+		//Redefine the boundaries for Zone B if it's tools have been updated 
+    	//***************************************************************************************************************************************    		
 		if (zoneBUpdated)
 		{
 			alZoneRule6Tools.clear();
@@ -538,7 +620,6 @@ public class ZoneData extends PriceData{
 				alZoneRule6Tools.add(ZoneRule6Tools);
 			}
 			setZoneBoundaries(alZoneRule6Tools, T, zoneName);
-			zoneBUpdated = false;
 		}
 		//***************************************************************************************************************************************
 		//Apply Rule 6 for C and D zones 
@@ -547,34 +628,69 @@ public class ZoneData extends PriceData{
 		alZoneRule6Tools.clear();
 		zoneName = "D";
 		boolean zoneCUpdated = false;
-
+		boolean zoneDUpdated = false;
+		
 		//***************************************************************************************************************************************
 		//Calculate range of zone and the NEAR value 
     	//***************************************************************************************************************************************    
     	double zoneCNear  = (T.zoneCHigh - T.zoneCLow) / Double.parseDouble(p.getProperty("ToolNearZonePercentage"));
     	zoneNearHigh = T.zoneCHigh + zoneCNear;
     	zoneNearLow = T.zoneCLow - zoneCNear;
-		
-    	row = 0;
+
+    	//***************************************************************************************************************************************
+		//Determine if all tools in zone D would be 'NEAR', which would result in zone D having no tools.
+    	//***************************************************************************************************************************************    
+    	int nbrZoneDToolsNear = 0;
+    	int nbrZoneDToolsUsed = 0;
 		size=T.alZoneDTools.size();
+		
 		for(row=0;row<size;row++)
 		{
 			ZoneTools ZoneRule6Tools = new ZoneTools(T.alZoneDTools.get(row));
-			alZoneRule6Tools.add(ZoneRule6Tools);
 			if (ZoneRule6Tools.zoneToolUsed == true)
 			{
+				nbrZoneDToolsUsed++;
 				if ((ZoneRule6Tools.zoneToolValue >= zoneNearLow) && (ZoneRule6Tools.zoneToolValue <= zoneNearHigh))
 				{	
-					ZoneRule6Tools.setZoneToolUsed(false);
-					alZoneRule6Tools.set(row, ZoneRule6Tools);
-					T.alZoneDTools.set(row, ZoneRule6Tools);
-					T.alZoneCTools.add(ZoneRule6Tools);
-					zoneCUpdated = true;
-					setZoneBoundaries(alZoneRule6Tools, T, zoneName);
+					nbrZoneDToolsNear++;
+				}
+			}
+		}		
+    	
+		//***************************************************************************************************************************************
+		//Determine of any tools in zone D 'NEAR' one C.
+    	//***************************************************************************************************************************************    
+		if (nbrZoneDToolsNear != nbrZoneDToolsUsed)
+		{		
+			for(row=0;row<size;row++)
+			{
+				ZoneTools ZoneRule6Tools = new ZoneTools(T.alZoneDTools.get(row));
+				alZoneRule6Tools.add(ZoneRule6Tools);
+				if (ZoneRule6Tools.zoneToolUsed == true)
+				{
+					if ((ZoneRule6Tools.zoneToolValue >= zoneNearLow) && (ZoneRule6Tools.zoneToolValue <= zoneNearHigh))
+					{	
+						T.alZoneCTools.add(ZoneRule6Tools);
+						ZoneRule6Tools.setZoneToolUsed(false);
+						alZoneRule6Tools.set(row, ZoneRule6Tools);
+						T.alZoneDTools.set(row, ZoneRule6Tools);
+						zoneDUpdated = true;
+						zoneCUpdated = true;
+					}
 				}
 			}
 		}
-		
+		//***************************************************************************************************************************************
+		//Redefine the boundaries for Zone D if it's tools have been updated 
+    	//***************************************************************************************************************************************    	
+		if (zoneDUpdated)
+		{
+			setZoneBoundaries(alZoneRule6Tools, T, zoneName);	
+		}		
+
+		//***************************************************************************************************************************************
+		//Redefine the boundaries for Zone C if it's tools have been updated 
+    	//***************************************************************************************************************************************    		
 		if (zoneCUpdated)
 		{
 			alZoneRule6Tools.clear();
@@ -586,9 +702,7 @@ public class ZoneData extends PriceData{
 				alZoneRule6Tools.add(ZoneRule6Tools);
 			}
 			setZoneBoundaries(alZoneRule6Tools, T, zoneName);
-			zoneCUpdated = false;
 		}
-
 	}
 	/**
 	 *  This method will load the values in the alZoneRules array list into the appropriate Zone array list in the Prices class
@@ -661,6 +775,31 @@ public class ZoneData extends PriceData{
 				T.zoneDLow = Collections.min(alZoneToolsValue);
 				break;
 		}
+		//T.zoneHigh = Collections.max(alZoneToolsValue);
+		//T.zoneLow = Collections.min(alZoneToolsValue);
+		//T.zoneWidth = T.zoneHigh - T.zoneLow;
+	}
+	/**
+	 *  This method will find the boundaries and width of the current zone
+	 *  The method will define the zone high low and range for the currnet zone being created, these values will be used in Zone Rules 4, 5, and 5A
+	 *  
+	 *  Input:
+	 *  
+	 *  Output:
+	 */
+	public void setCurrentZoneBoundaries(ArrayList <ZoneTools> alZoneRules, PriceData T)
+	{
+		int row = 0;
+		int size=alZoneRules.size();
+		ArrayList<Double> alZoneToolsValue = new ArrayList<Double>();		
+		for(row=0;row<size;row++)
+		{
+			ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
+			if (ZoneRulesTools.zoneToolUsed == true )
+			{
+				alZoneToolsValue.add(ZoneRulesTools.zoneToolValue);
+			}
+		}	
 		T.zoneHigh = Collections.max(alZoneToolsValue);
 		T.zoneLow = Collections.min(alZoneToolsValue);
 		T.zoneWidth = T.zoneHigh - T.zoneLow;
@@ -708,31 +847,23 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-
 			zoneName = "C";
-			alZoneTools.clear();
-			
+			alZoneTools.clear();			
 			ZoneTools ZoneToolsValues = new ZoneTools("Red Bird Dot",T.redBirdDot);
-			alZoneTools.add(ZoneToolsValues); 	
-		
+			alZoneTools.add(ZoneToolsValues); 			
 			ZoneTools ZoneToolsValues1 = new ZoneTools("6/5 Up",T.$6_5_Up);
-			alZoneTools.add(ZoneToolsValues1);			
-			
+			alZoneTools.add(ZoneToolsValues1);						
 			ZoneTools ZoneToolsValues2 = new ZoneTools("5/3 Up",T.$5_3_Up);
-			alZoneTools.add(ZoneToolsValues2);
-			
+			alZoneTools.add(ZoneToolsValues2);			
 			ZoneTools ZoneToolsValues3 = new ZoneTools("MCL",T.mcLine);
-			alZoneTools.add(ZoneToolsValues3);
-			
+			alZoneTools.add(ZoneToolsValues3);			
 			ZoneTools ZoneToolsValues4 = new ZoneTools("1/1 Low",T.$1_1_Low);
-			alZoneTools.add(ZoneToolsValues4);
-			
+			alZoneTools.add(ZoneToolsValues4);			
 			if (T.plDotInRange)
 			{
 				ZoneTools ZoneToolsValues5 = new ZoneTools("PL Dot",T.plDot);
 				alZoneTools.add(ZoneToolsValues5);
 			}
-
 			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
 			loadZoneToolsArray(alZoneTools, T, zoneName);
 			setZoneBoundaries(alZoneTools, T, zoneName);
@@ -742,17 +873,19 @@ public class ZoneData extends PriceData{
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
 			zoneName = "A";
-			alZoneTools.clear();
-			
-			ZoneTools ZoneToolsValues6 = new ZoneTools("5/9 Down",T.$5_9_Down);
-			alZoneTools.add(ZoneToolsValues6);
-			
-			if (T.$5_2_Down_Deep || T.$5_2_Down_Regular)
+			alZoneTools.clear();						
+			if (T.$5_2_Down_Regular)
 			{
-				ZoneTools ZoneToolsValues7 = new ZoneTools("5/2 Down",T.$5_2_Down);
+				ZoneTools ZoneToolsValues7 = new ZoneTools("5/2 Down Regular",T.$5_2_Down);
 				alZoneTools.add(ZoneToolsValues7);
 			}
-			
+			if (T.$5_2_Down_Deep)
+			{
+				ZoneTools ZoneToolsValues14 = new ZoneTools("5/2 Down Deep",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues14);
+			}			
+			ZoneTools ZoneToolsValues6 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues6);
 			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
 			loadZoneToolsArray(alZoneTools, T, zoneName);
 			setZoneBoundaries(alZoneTools, T, zoneName);
@@ -762,11 +895,9 @@ public class ZoneData extends PriceData{
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
 			zoneName = "B";
-			alZoneTools.clear();
-			
+			alZoneTools.clear();			
 			ZoneTools ZoneToolsValues8 = new ZoneTools("1/1 High",T.$1_1_High);
-			alZoneTools.add(ZoneToolsValues8);
-			
+			alZoneTools.add(ZoneToolsValues8);			
 			if ((T.$5_1_Down >= T.lowPrice) && (T.$5_1_Down <= T.highPrice))
 			{
 				ZoneTools ZoneToolsValues9 = new ZoneTools("5/1 Down",T.$5_1_Down);
@@ -776,8 +907,7 @@ public class ZoneData extends PriceData{
 			{
 				ZoneTools ZoneToolsValues10 = new ZoneTools("5/2 Down Short",T.$5_2_Down);
 				alZoneTools.add(ZoneToolsValues10);
-			}
-			
+			}			
 			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
 			loadZoneToolsArray(alZoneTools, T, zoneName);
 			setZoneBoundaries(alZoneTools, T, zoneName);		
@@ -787,27 +917,21 @@ public class ZoneData extends PriceData{
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
 			zoneName = "D";
-			alZoneTools.clear();
-			
+			alZoneTools.clear();			
 			ZoneTools ZoneToolsValues11 = new ZoneTools("6/1 Up",T.$6_1_Up);
-			alZoneTools.add(ZoneToolsValues11);
-				
+			alZoneTools.add(ZoneToolsValues11);				
 			ZoneTools ZoneToolsValues12 = new ZoneTools("5/9 Up",T.$5_9_Up);
-			alZoneTools.add(ZoneToolsValues12);
-			
+			alZoneTools.add(ZoneToolsValues12);			
 			if (T.plDotOutsideRange)
 			{
 				ZoneTools ZoneToolsValues13 = new ZoneTools("PL Dot",T.plDot);
 				alZoneTools.add(ZoneToolsValues13);
-			}
-			
+			}			
 			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
 			loadZoneToolsArray(alZoneTools, T, zoneName);
 			setZoneBoundaries(alZoneTools, T, zoneName);
-			applyZoneRule6(T, p);
-			
-			T.zoneDPurpose = "Where low forms to enter Congestion Entrance Down";
-			
+			applyZoneRule6(T, p);			
+			T.zoneDPurpose = "Where low forms to enter Congestion Entrance Down";			
 		}
 
 		//***************************************************************************************************************************************
@@ -818,58 +942,81 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
-			//*alist.add(T.plDot);
-
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			zoneName = "C";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues1 = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues1);
+			ZoneTools ZoneToolsValues2 = new ZoneTools("PLDot",T.plDot);
+			alZoneTools.add(ZoneToolsValues2);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to continue Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_9_Down);
-			if (T.$5_2_Down_Short || T.$5_2_Down_Regular)
+			zoneName = "A";
+			alZoneTools.clear();			
+			if (T.$5_2_Down_Short)
 			{
-				//*alist.add(T.$5_2_Down);					
-			}
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			ZoneTools ZoneToolsValues3 = new ZoneTools("5/2 Down Short",T.$5_2_Down);
+			alZoneTools.add(ZoneToolsValues3);
+			}			
+			if (T.$5_2_Down_Regular)
+			{
+			ZoneTools ZoneToolsValues4 = new ZoneTools("5/2 Down Regular",T.$5_2_Down);
+			alZoneTools.add(ZoneToolsValues4);
+			}			
+			ZoneTools ZoneToolsValues5 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues5);			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);			
 			T.zoneAPurpose = "Where high forms to continue Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Down);
-			//*alist.add(T.$6_1_Down);
+			zoneName = "B";
+			alZoneTools.clear();			
 			if (T.mcLine >= T.closePrice) 
 			{
-				//*alist.add(T.mcLine);
+				ZoneTools ZoneToolsValues6 = new ZoneTools("MCLine",T.mcLine);
+				alZoneTools.add(ZoneToolsValues6);
 			}
+			ZoneTools ZoneToolsValues7 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues7);			
 			if ((T.$5_1_Down >= T.lowPrice) && (T.$5_1_Down <= T.highPrice))
 			{
-				//*alist.add(T.$5_1_Down);
-			}
+				ZoneTools ZoneToolsValues8 = new ZoneTools("5/1 Down",T.$5_1_Down);
+				alZoneTools.add(ZoneToolsValues8);
+			}			
 			if (T.redBirdDot > T.closePrice)
 			{
-				//*alist.add(T.redBirdDot);
+				ZoneTools ZoneToolsValues9 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+				alZoneTools.add(ZoneToolsValues9);
 			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			ZoneTools ZoneToolsValues10 = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues10);			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneBPurpose = "Where high forms to enter Congestion Entrance Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Up);
-			//*alist.add(T.$5_9_Up);
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			zoneName = "D";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues11 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues11);			
+			ZoneTools ZoneToolsValues12 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues12);			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);
 			T.zoneDPurpose = "Where low forms to enter Congestion Entrance Down";
 		}
 		//***************************************************************************************************************************************
@@ -880,56 +1027,78 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
-			//*alist.add(T.$5_3_Up);
-
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			zoneName = "C";
+			alZoneTools.clear();					
+			ZoneTools ZoneToolsValues1 = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues1);			
+			ZoneTools ZoneToolsValues2 = new ZoneTools("5/3 Up",T.$5_3_Up);
+			alZoneTools.add(ZoneToolsValues2);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to continue Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Down);
-			//*alist.add(T.$5_9_Down);
-			if (T.$5_2_Down_Short || T.$5_2_Down_Regular)
+			zoneName = "A";
+			alZoneTools.clear();			
+			if (T.$5_2_Down_Short)
 			{
-				//*alist.add(T.$5_2_Down);					
-			}
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			ZoneTools ZoneToolsValues3 = new ZoneTools("5/2 Down Short",T.$5_2_Down);
+			alZoneTools.add(ZoneToolsValues3);
+			}		
+			if (T.$5_2_Down_Regular)
+			{
+			ZoneTools ZoneToolsValues4 = new ZoneTools("5/2 Down Regular",T.$5_2_Down);
+			alZoneTools.add(ZoneToolsValues4);
+			}			
+			ZoneTools ZoneToolsValues5 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues5);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneAPurpose = "Where high forms to continue Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.plDot);
-			//*alist.add(T.mcLine);
-			//*alist.add(T.$6_1_Down);
+			zoneName = "B";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues6 = new ZoneTools("PL Dot",T.plDot);
+			alZoneTools.add(ZoneToolsValues6);			
+			ZoneTools ZoneToolsValues7 = new ZoneTools("MC Line",T.mcLine);
+			alZoneTools.add(ZoneToolsValues7);			
+			ZoneTools ZoneToolsValues8 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues8);			
 			if (T.redBirdDot > T.closePrice) 
 			{
-				//*alist.add(T.redBirdDot);
+				ZoneTools ZoneToolsValues9 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+				alZoneTools.add(ZoneToolsValues9);
 			}
 			if ((T.$5_1_Down >= T.lowPrice) && (T.$5_1_Down <= T.highPrice))
 			{
-				//*alist.add(T.$5_1_Down);
+				ZoneTools ZoneToolsValues10 = new ZoneTools("5/1 Down",T.$5_1_Down);
+				alZoneTools.add(ZoneToolsValues10);
 			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneBPurpose = "Where high forms to enter Congestion Entrance Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Up);
-			//*alist.add(T.$5_9_Up);
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			zoneName = "D";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues11 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues11);			
+			ZoneTools ZoneToolsValues12 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues12);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);
 			T.zoneDPurpose = "Where low forms to enter Congestion Entrance Down";
 		}
 		//***************************************************************************************************************************************
@@ -940,54 +1109,79 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
-			//*alist.add(T.$6_1_Up);
-			//*alist.add(T.$5_1_Up);
+			zoneName = "C";
+			alZoneTools.clear();			
+			//* NEED TO ADD CURRENT BLOCK LEVEL AND 5/1 AND 6/1 TO SEE IF THEY ARE IN THE CONGESTION PARMS
+			//ZoneTools ZoneToolsValues = new ZoneTools("Currnet Block Level",T.Currnet Block Level);
+			//alZoneTools.add(ZoneToolsValues);
+			ZoneTools ZoneToolsValues1 = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues1);			
+			ZoneTools ZoneToolsValues2 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues2);			
+			ZoneTools ZoneToolsValues3 = new ZoneTools("5/1 Up",T.$5_1_Up);
+			alZoneTools.add(ZoneToolsValues3);			
 			if (T.$5_2_Up_Short)
 			{
-				//*alist.add(T.$5_2_Down);					
-			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+				ZoneTools ZoneToolsValues4 = new ZoneTools("5/2 Up Short",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues4);		
+			}			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to go to Congestion Action Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Down);
-			//*alist.add(T.$5_9_Down);
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			zoneName = "A";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues5 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues5);			
+			ZoneTools ZoneToolsValues6 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues6);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneAPurpose = "Where high forms to go to Congestion Action Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.plDot);
-			//*alist.add(T.mcLine);
-			//*alist.add(T.redBirdDot);
-			//*alist.add(T.$6_5_Down);
-			//*alist.add(T.$5_3_Down);
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			zoneName = "B";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues7 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+			alZoneTools.add(ZoneToolsValues7); 			
+			ZoneTools ZoneToolsValues8 = new ZoneTools("6/5 Down",T.$6_5_Down);
+			alZoneTools.add(ZoneToolsValues8);						
+			ZoneTools ZoneToolsValues9 = new ZoneTools("5/3 Down",T.$5_3_Down);
+			alZoneTools.add(ZoneToolsValues9);			
+			ZoneTools ZoneToolsValues10 = new ZoneTools("MCL",T.mcLine);
+			alZoneTools.add(ZoneToolsValues10);			
+			ZoneTools ZoneToolsValues11 = new ZoneTools("PL Dot",T.plDot);
+			alZoneTools.add(ZoneToolsValues11);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneBPurpose = "Where high forms to go to Congestion Exit Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Up_Ext);
-			//*alist.add(T.$5_9_Up);
+			zoneName = "D";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues12 = new ZoneTools("5/2 Up Ext",T.$5_2_Up_Ext);
+			alZoneTools.add(ZoneToolsValues12);			
+			ZoneTools ZoneToolsValues13 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues13);			
 			if (T.$5_2_Up_Deep)
 			{
-				//*alist.add(T.$5_2_Up);					
+				ZoneTools ZoneToolsValues14 = new ZoneTools("5/2 Up Deep",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues14);				
 			}
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);
 			T.zoneDPurpose = "Where low forms to go to Congestion Exit Down";
 		}
 		//***************************************************************************************************************************************
@@ -998,73 +1192,98 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$1_1_High);
-			//*alist.add(T.redBirdDot);
+			zoneName = "B";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues);			
+			ZoneTools ZoneToolsValues1 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+			alZoneTools.add(ZoneToolsValues1);			
 			if (T.mcLine > T.closePrice) 
 			{
-				//*alist.add(T.mcLine);
+				ZoneTools ZoneToolsValues2 = new ZoneTools("MC Line",T.mcLine);
+				alZoneTools.add(ZoneToolsValues2);
 			}
 			if (T.plDot > T.closePrice) 
 			{
-				//*alist.add(T.plDot);
+				ZoneTools ZoneToolsValues3 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues3);
 			}				
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);			
 			T.zoneBPurpose = "Where high forms to go to Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//* Need deep 5/2 up
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//alist.add(T.$5_2_Up);
-			//*alist.add(T.$5_9_Up);
-			if (T.$5_2_Up_Deep || T.$5_2_Up_Regular)
+			zoneName = "B";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues4 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues4);			
+			if (T.$5_2_Up_Deep)
 			{
-				//*alist.add(T.$5_2_Up);					
+				ZoneTools ZoneToolsValues5 = new ZoneTools("5/2 Up Deep",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues5);				
 			}
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			if (T.$5_2_Up_Regular)
+			{
+				ZoneTools ZoneToolsValues6 = new ZoneTools("5/2 Up Regular",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues6);				
+			}
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);			
 			T.zoneDPurpose = "Where low forms to go to Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//* Need short 5/2 up
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
-			//*alist.add(T.$6_1_Up);
-			//*alist.add(T.$5_2_Up);
-			if ((T.$5_1_Up >= T.lowPrice) && (T.$5_1_Up <= T.highPrice))
-			{
-				//*alist.add(T.$5_1_Up);
-			}
-			if (T.plDot < T.closePrice)
-			{
-				//*alist.add(T.plDot);
-			}
-			if (T.mcLine < T.closePrice)
-			{
-				//*alist.add(T.mcLine);
-			}
+			zoneName = "C";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues7 = new ZoneTools("1/1 Up",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues7);			
 			if (T.$5_2_Up_Short)
 			{
-				//*alist.add(T.$5_2_Up);					
-			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+				ZoneTools ZoneToolsValues8 = new ZoneTools("5/2 Up Short",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues8);				
+			}			
+			ZoneTools ZoneToolsValues9 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues9);			
+			if ((T.$5_1_Up >= T.lowPrice) && (T.$5_1_Up <= T.highPrice))
+			{
+				ZoneTools ZoneToolsValues10 = new ZoneTools("5/1 Up",T.$5_1_Up);
+				alZoneTools.add(ZoneToolsValues10);
+			}		
+			if (T.plDot < T.closePrice)
+			{
+				ZoneTools ZoneToolsValues11 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues11);
+			}		
+			if (T.mcLine < T.closePrice)
+			{
+				ZoneTools ZoneToolsValues12 = new ZoneTools("MC Line",T.mcLine);
+				alZoneTools.add(ZoneToolsValues12);
+			}			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to go to Congestion Action Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Down);
-			//*alist.add(T.$5_9_Down);
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			zoneName = "A";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues13 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues13);			
+			ZoneTools ZoneToolsValues14 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues14);			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);		
 			T.zoneAPurpose = "Where high forms to go to Congestion Action Up";
 		}
 		//***************************************************************************************************************************************
@@ -1076,65 +1295,93 @@ public class ZoneData extends PriceData{
 			//*  Define the B Zone
 			//* Need Last block to form
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$6_5_Down);
-			//*alist.add(T.$5_3_Down);
-			//alist.add(T.lastBlockToForm);
-			//*alist.add(T.mcLine);
-			//*alist.add(T.$1_1_High);
-			//*alist.add(T.redBirdDot);
-			if ((T.plDot >= T.lowPrice) && (T.plDot <= T.highPrice))
+			zoneName = "B";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues = new ZoneTools("6/5 Down",T.$6_5_Down);
+			alZoneTools.add(ZoneToolsValues);			
+			ZoneTools ZoneToolsValues1 = new ZoneTools("5/3 Down",T.$5_3_Down);
+			alZoneTools.add(ZoneToolsValues1);			
+			//ZoneTools ZoneToolsValues2 = new ZoneTools("Last Block to Form",T.lastBlockToForm);
+			//alZoneTools.add(ZoneToolsValues2);			
+			ZoneTools ZoneToolsValues3 = new ZoneTools("MC Line",T.mcLine);
+			alZoneTools.add(ZoneToolsValues3);			
+			ZoneTools ZoneToolsValues4 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+			alZoneTools.add(ZoneToolsValues4);		
+			ZoneTools ZoneToolsValues5 = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues5);			
+			if (T.plDotInRange)
 			{
-				//*alist.add(T.plDot);
+				ZoneTools ZoneToolsValues6 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues6);
 			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);			
 			T.zoneBPurpose = "Where high forms to go to Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Up);
-			//*alist.add(T.$5_9_Up);
-			if (T.$5_2_Up_Deep || T.$5_2_Up_Regular)
+			zoneName = "D";
+			alZoneTools.clear();			
+			if (T.$5_2_Up_Regular)
 			{
-				//*alist.add(T.$5_2_Up);					
+				ZoneTools ZoneToolsValues7 = new ZoneTools("5/2 Up Regular",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues7);				
 			}
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			if (T.$5_2_Up_Deep)
+			{
+				ZoneTools ZoneToolsValues8 = new ZoneTools("5/2 Up Deep",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues8);	
+			}			
+			ZoneTools ZoneToolsValues9 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues9);				
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);			
 			T.zoneDPurpose = "Where low forms to go to Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
+			zoneName = "C";
+			alZoneTools.clear();
 			if ((T.$5_1_Up >= T.lowPrice) && (T.$5_1_Up <= T.highPrice))
 			{
-				//*alist.add(T.$5_1_Up);
-			}
+				ZoneTools ZoneToolsValues10 = new ZoneTools("5/1 Up",T.$5_1_Up);
+				alZoneTools.add(ZoneToolsValues10);
+			}			
+			ZoneTools ZoneToolsValues11 = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues11);			
 			if (T.$5_2_Up_Short)
 			{
-				//*alist.add(T.$5_2_Up);					
-			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+				ZoneTools ZoneToolsValues12 = new ZoneTools("5/2 Up Short",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues12);					
+			}			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			
 			T.zoneCPurpose = "Where low forms to go to Congestion Action Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Down);
-			//*alist.add(T.$5_9_Down);
-			if ((T.plDot > T.highPrice) || (T.plDot < T.lowPrice))
+			zoneName = "A";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues13 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues13);			
+			ZoneTools ZoneToolsValues14 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues14);			
+			if (T.plDotOutsideRange)
 			{
-				//*alist.add(T.plDot);
+				ZoneTools ZoneToolsValues15 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues15);
 			}
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);		
 			T.zoneAPurpose = "Where high forms to go to Congestion Action Up";
 		}
 		//***************************************************************************************************************************************
@@ -1145,28 +1392,40 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$1_1_High);
+			zoneName = "B";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues);			
 			if ((T.$6_1_Down >= T.lowPrice) && (T.$6_1_Down <= T.highPrice))
 			{
-				//*alist.add(T.$6_1_Down);
-			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+				ZoneTools ZoneToolsValues1 = new ZoneTools("6/1 Down",T.$6_1_Down);
+				alZoneTools.add(ZoneToolsValues1);
+			}			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);			
 			T.zoneBPurpose = "Where high forms to go to Congestion Exit Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_9_Up);
-			if (T.$5_2_Up_Deep || T.$5_2_Up_Regular)
+			zoneName = "D";
+			alZoneTools.clear();			
+			if (T.$5_2_Up_Regular)
 			{
-				//*alist.add(T.$5_2_Down);					
-			}
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+				ZoneTools ZoneToolsValues2 = new ZoneTools("5/2 Up Regular",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues2);			
+			}			
+			if (T.$5_2_Up_Deep)
+			{
+				ZoneTools ZoneToolsValues3 = new ZoneTools("5/2 Up Deep",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues3);			
+			}								
+			ZoneTools ZoneToolsValues4 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues4);			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);			
 			T.zoneDPurpose = "Where low forms to go to Congestion Exit Down";
 
 			//***************************************************************************************************************************************
@@ -1174,33 +1433,48 @@ public class ZoneData extends PriceData{
 			//* Need Last Block to Form
 			//* Need short 5/2 up
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
-			//*alist.add(T.$6_1_Up);
+			zoneName = "C";
+			alZoneTools.clear();
+			//ZoneTools ZoneToolsValues5 = new ZoneTools("Last Block to Form",T.$1_1_Low);
+			//alZoneTools.add(ZoneToolsValues5);			
+			ZoneTools ZoneToolsValues6 = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues6);			
+			ZoneTools ZoneToolsValues7 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues7);			
+			if (T.$5_2_Up_Short)
+			{					
+			ZoneTools ZoneToolsValues8 = new ZoneTools("5/2 Up Short",T.$5_2_Up);
+			alZoneTools.add(ZoneToolsValues8);
+			}			
 			if ((T.$5_1_Up >= T.lowPrice) && (T.$5_1_Up <= T.highPrice))
 			{
-				//*alist.add(T.$5_1_Up);
+				ZoneTools ZoneToolsValues9 = new ZoneTools("5/1 Up",T.$5_1_Up);
+				alZoneTools.add(ZoneToolsValues9);
 			}
-			if (T.$5_2_Up_Short)
-			{
-				//*alist.add(T.$5_2_Up);					
-			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);						
 			T.zoneCPurpose = "Where low forms to go to Congestion Action Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Down);
-			//*alist.add(T.$5_9_Down);
+			zoneName = "A";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues10 = new ZoneTools("5/2 Down",T.$5_2_Down);
+			alZoneTools.add(ZoneToolsValues10);
 			if ((T.$6_1_Down > T.highPrice) || (T.$6_1_Down < T.lowPrice))
 			{
+				ZoneTools ZoneToolsValues11 = new ZoneTools("6/1 Down",T.$6_1_Down);
+				alZoneTools.add(ZoneToolsValues11);
 				//*alist.add(T.$6_1_Down);
-			}
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			}			
+			ZoneTools ZoneToolsValues12 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues12);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);			
 			T.zoneAPurpose = "Where high forms to go to Congestion Action Up";
 		}
 		//***************************************************************************************************************************************
@@ -1211,72 +1485,95 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$1_1_High);
-			//*alist.add(T.plDot);
-			//*alist.add(T.$6_5_Down);
+			zoneName = "B";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues);		
+			ZoneTools ZoneToolsValues1 = new ZoneTools("6/5 Down",T.$6_5_Down);
+			alZoneTools.add(ZoneToolsValues1);			
+			ZoneTools ZoneToolsValues2 = new ZoneTools("PL Dot",T.plDot);
+			alZoneTools.add(ZoneToolsValues2);			
 			if (T.mcLine > T.closePrice)
 			{
-				//*alist.add(T.mcLine);
+				ZoneTools ZoneToolsValues3 = new ZoneTools("MC Line",T.mcLine);
+				alZoneTools.add(ZoneToolsValues3);
 			}
 			if (T.redBirdDot > T.closePrice)
 			{
-				//*alist.add(T.redBirdDot);
+				ZoneTools ZoneToolsValues4 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+				alZoneTools.add(ZoneToolsValues4);
 			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);		
 			T.zoneBPurpose = "Where high forms to go to Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//alist.add(T.$5_2_Up deep);
-			//*alist.add(T.$5_2_Up_Ext);
-			//*alist.add(T.$5_9_Up);
+			zoneName = "D";
+			alZoneTools.clear();			
 			if (T.$5_2_Up_Deep)
 			{
-				//*alist.add(T.$5_2_Up);					
-			}
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+				ZoneTools ZoneToolsValues5 = new ZoneTools("5/2 Up Deep",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues5);			
+			}			
+			ZoneTools ZoneToolsValues6 = new ZoneTools("5/2 Up Ext",T.$5_2_Up_Ext);
+			alZoneTools.add(ZoneToolsValues6);						
+			ZoneTools ZoneToolsValues7 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues7);			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneDPurpose = "Where low forms to go to Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
-			//*alist.add(T.$6_1_Up);
+			zoneName = "C";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues8 = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues8);			
 			if (T.$5_2_Up_Short)
 			{
-				//*alist.add(T.$5_2_Up);					
-			}
+				ZoneTools ZoneToolsValues9 = new ZoneTools("5/2 Up",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues9);					
+			}			
+			ZoneTools ZoneToolsValues10 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues10);			
 			if ((T.$5_1_Up >= T.lowPrice) && (T.$5_1_Up <= T.highPrice))
 			{
-				//*alist.add(T.$5_1_Up);
-			}
-			if (T.mcLine < T.closePrice)
-			{
-				//*alist.add(T.mcLine);
+				ZoneTools ZoneToolsValues11 = new ZoneTools("5/1 Up",T.$5_1_Up);
+				alZoneTools.add(ZoneToolsValues11);
 			}
 			if (T.plDot < T.closePrice)
 			{
-				//*alist.add(T.plDot);
+				ZoneTools ZoneToolsValues12 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues12);
+			}			
+			if (T.mcLine < T.closePrice)
+			{
+				ZoneTools ZoneToolsValues13 = new ZoneTools("MC Line",T.mcLine);
+				alZoneTools.add(ZoneToolsValues13);
 			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to go to Congestion Action Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Down);
-			//*alist.add(T.$5_9_Down);
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			zoneName = "A";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues14 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues14);			
+			ZoneTools ZoneToolsValues15 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues15);			
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);			
 			T.zoneAPurpose = "Where high forms to go to Congestion Action Up";
 		}
 		//***************************************************************************************************************************************
@@ -1287,66 +1584,90 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.redBirdDot);
-			//*alist.add(T.$6_5_Down);
-			//*alist.add(T.$5_3_Down);
-			//*alist.add(T.mcLine);
-			//*alist.add(T.$1_1_High);
-			if ((T.plDot >= T.lowPrice) && (T.plDot <= T.highPrice))
+			zoneName = "B";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues = new ZoneTools("Red Bird Dot",T.redBirdDot);
+			alZoneTools.add(ZoneToolsValues);			
+			ZoneTools ZoneToolsValues1 = new ZoneTools("6/5 Down",T.$6_5_Down);
+			alZoneTools.add(ZoneToolsValues1);			
+			ZoneTools ZoneToolsValues2 = new ZoneTools("5/3 Down",T.$5_3_Down);
+			alZoneTools.add(ZoneToolsValues2);			
+			ZoneTools ZoneToolsValues3 = new ZoneTools("MC Line",T.mcLine);
+			alZoneTools.add(ZoneToolsValues3);			
+			ZoneTools ZoneToolsValues4 = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues4);
+			if (T.plDotInRange)
 			{
-				//*alist.add(T.plDot);
+				ZoneTools ZoneToolsValues5 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues5);
 			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneBPurpose = "Where high forms to continue Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//alist.add(T.$5_2_Up deep);
-			//*alist.add(T.$5_9_Up);
-			//*alist.add(T.$5_2_Up);
-			if (T.$5_2_Up_Deep || T.$5_2_Up_Regular)
+			zoneName = "D";
+			alZoneTools.clear();			
+			if (T.$5_2_Up_Regular)
 			{
-				//*alist.add(T.$5_2_Up);					
+				ZoneTools ZoneToolsValues6 = new ZoneTools("5/2 Up",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues6);					
 			}
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			if (T.$5_2_Up_Deep)
+			{
+				ZoneTools ZoneToolsValues7 = new ZoneTools("5/2 Up",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues7);					
+			}
+			ZoneTools ZoneToolsValues8 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues8);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneDPurpose = "Where low forms to xontinue Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
-			//*alist.add(T.$5_2_Up_short);
-			if ((T.$5_1_Up >= T.lowPrice) && (T.$5_1_Up <= T.highPrice))
-			{
-				//*alist.add(T.$5_1_Up);
-			}
+			zoneName = "C";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues9 = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues9);					
 			if (T.$5_2_Up_Short)
 			{
-				//*alist.add(T.$5_2_Up);					
+				ZoneTools ZoneToolsValues10 = new ZoneTools("5/2 Up",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues10);					
 			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			if ((T.$5_1_Up >= T.lowPrice) && (T.$5_1_Up <= T.highPrice))
+			{
+				ZoneTools ZoneToolsValues11 = new ZoneTools("5/1 Up",T.$5_1_Up);
+				alZoneTools.add(ZoneToolsValues11);
+			}
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to go to Congestion Entrance Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Down);
-			//*alist.add(T.$5_9_Down);
-			if ((T.plDot < T.lowPrice) || (T.plDot > T.highPrice))
+			zoneName = "A";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues12 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues12);	
+			ZoneTools ZoneToolsValues13 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues13);//*alist.clear();
+			if (T.plDotOutsideRange)
 			{
-				//*alist.add(T.plDot);
+				ZoneTools ZoneToolsValues14 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues14);
 			}
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);
 			T.zoneAPurpose = "Where high forms to go to Congestion Entrance Up";
 		}
 		//***************************************************************************************************************************************
@@ -1357,60 +1678,83 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.plDot);
-			//*alist.add(T.$1_1_High);
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			zoneName = "B";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues = new ZoneTools("PL Dot",T.plDot);
+			alZoneTools.add(ZoneToolsValues);
+			ZoneTools ZoneToolsValues1 = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues1);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneBPurpose = "Where high forms to continue Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//* Need short 5/2 up
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//alist.add(T.$5_2_Up short);
-			//*alist.add(T.$5_9_Up);
-			//*alist.add(T.$5_2_Up);
-			if (T.$5_2_Up_Short || T.$5_2_Up_Regular)
+			zoneName = "D";
+			alZoneTools.clear();
+			if (T.$5_2_Up_Short)
 			{
-				//*alist.add(T.$5_2_Up);					
+				ZoneTools ZoneToolsValues2 = new ZoneTools("5 2 Up Short",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues2);					
 			}
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			if (T.$5_2_Up_Regular)
+			{
+				ZoneTools ZoneToolsValues3 = new ZoneTools("5 2 Up Regular",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues3);					
+			}
+			
+			ZoneTools ZoneToolsValues4 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues4);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneDPurpose = "Where low forms to continue Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
-			//*alist.add(T.$6_1_Up);
+			zoneName = "C";
+			alZoneTools.clear();
+			if (T.mcLine < T.closePrice)
+			{
+				ZoneTools ZoneToolsValues6 = new ZoneTools("MC Line",T.mcLine);
+				alZoneTools.add(ZoneToolsValues6);
+			}
+			ZoneTools ZoneToolsValues7 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues7);
 			if ((T.$5_1_Up >= T.lowPrice) && (T.$5_1_Up <= T.highPrice))
 			{
-				//*alist.add(T.$5_1_Up);
+				ZoneTools ZoneToolsValues8 = new ZoneTools("5/1 Up",T.$5_1_Up);
+				alZoneTools.add(ZoneToolsValues8);
 			}
 			if (T.redBirdDot < T.closePrice)
 			{
-				//*alist.add(T.redBirdDot);
+				ZoneTools ZoneToolsValues9 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+				alZoneTools.add(ZoneToolsValues9);
 			}
-			if (T.mcLine < T.closePrice)
-			{
-				//*alist.add(T.mcLine);
-			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			ZoneTools ZoneToolsValues10 = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues10);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to go to Congestion Entrance Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Down);
-			//*alist.add(T.$5_9_Down);
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			zoneName = "A";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues11 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues11);
+			ZoneTools ZoneToolsValues12 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues12);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);
 			T.zoneAPurpose = "Where high forms to go to Congestion Entrance Up";
 		}		
 		//***************************************************************************************************************************************
@@ -1421,56 +1765,80 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$5_3_Down);
-			//*alist.add(T.$1_1_High);
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			zoneName = "B";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues);
+			ZoneTools ZoneToolsValues1 = new ZoneTools("5/3 Down",T.$5_3_Down);
+			alZoneTools.add(ZoneToolsValues1);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneBPurpose = "Where high forms to continue Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//* Need short 5/2 up
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//alist.add(T.$5_2_Up short);
-			//*alist.add(T.$5_9_Up);
-			//*alist.add(T.$5_2_Up);
-			if (T.$5_2_Up_Short || T.$5_2_Up_Regular)
+			zoneName = "D";
+			alZoneTools.clear();
+			if (T.$5_2_Up_Short)
 			{
-				//*alist.add(T.$5_2_Up);					
+				ZoneTools ZoneToolsValues2 = new ZoneTools("5 2 Up Short",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues2);					
 			}
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			if (T.$5_2_Up_Regular)
+			{
+				ZoneTools ZoneToolsValues3 = new ZoneTools("5 2 Up Regular",T.$5_2_Up);
+				alZoneTools.add(ZoneToolsValues3);					
+			}
+			
+			ZoneTools ZoneToolsValues4 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues4);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneDPurpose = "Where low forms to continue Trend Run Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.plDot);
-			//*alist.add(T.mcLine);
-			if ((T.$5_1_Up >= T.lowPrice) && (T.$5_1_Up <= T.highPrice))
-			{
-				//*alist.add(T.$5_1_Up);
-			}
+			zoneName = "C";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues5 = new ZoneTools("PL Dot",T.plDot);
+			alZoneTools.add(ZoneToolsValues5);
+			ZoneTools ZoneToolsValues6 = new ZoneTools("MC Line",T.mcLine);
+			alZoneTools.add(ZoneToolsValues6);
 			if (T.redBirdDot < T.closePrice)
 			{
-				//*alist.add(T.redBirdDot);
+				ZoneTools ZoneToolsValues7 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+				alZoneTools.add(ZoneToolsValues7);
 			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			ZoneTools ZoneToolsValues8 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues8);
+			if ((T.$5_1_Up >= T.lowPrice) && (T.$5_1_Up <= T.highPrice))
+			{
+				ZoneTools ZoneToolsValues9 = new ZoneTools("5/1 Up",T.$5_1_Up);
+				alZoneTools.add(ZoneToolsValues9);
+			}
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to go to Congestion Entrance Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Down);
-			//*alist.add(T.$5_9_Down);
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			zoneName = "A";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues11 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues11);
+			ZoneTools ZoneToolsValues12 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues12);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);
 			T.zoneAPurpose = "Where high forms to go to Congestion Entrance Up";
 		}
 		//***************************************************************************************************************************************
@@ -1483,61 +1851,86 @@ public class ZoneData extends PriceData{
 			// need current blocklevel
 			// need 5/1 down in congestion
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$6_1_Down);
-			//*alist.add(T.$1_1_High);
-			//alist.add(short 5/2);
-			//alist.add(5/1 in congestion);
-			//alist.add(current block level);
+			zoneName = "B";
+			alZoneTools.clear();
+			//ZoneTools ZoneToolsValues = new ZoneTools("Current Block Level",T.Current Block Level);
+			//alZoneTools.add(ZoneToolsValues);
+			ZoneTools ZoneToolsValues1 = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues1);			
 			if (T.$5_2_Down_Short)
 			{
-				//*alist.add(T.$5_2_Down);					
+				ZoneTools ZoneToolsValues2 = new ZoneTools("5/2 Down Short",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues2);					
 			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
-			T.zoneBPurpose = "Where high forms to go to COngestion Action Down";
+			ZoneTools ZoneToolsValues3 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues3);
+			// Needs to be in congestion range rather than price range
+			if ((T.$5_1_Down >= T.lowPrice) && (T.$5_1_Down <= T.highPrice))
+			{
+				ZoneTools ZoneToolsValues4 = new ZoneTools("5/1 Down",T.$5_1_Down);
+				alZoneTools.add(ZoneToolsValues4);
+			}
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			T.zoneBPurpose = "Where high forms to go to Congestion Action Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_9_Up);
-			//*alist.add(T.$6_1_Up);
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			zoneName = "D";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues5 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues5);
+			ZoneTools ZoneToolsValues14 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues14);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneDPurpose = "Where low forms to go to COngestion Action Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.redBirdDot);
-			//*alist.add(T.$6_5_Up);
-			//*alist.add(T.$5_3_Up);
-			//*alist.add(T.plDot);
-			//*alist.add(T.mcLine);
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			zoneName = "C";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues6 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+			alZoneTools.add(ZoneToolsValues6);
+			ZoneTools ZoneToolsValues7 = new ZoneTools("6/5 Up",T.$6_5_Up);
+			alZoneTools.add(ZoneToolsValues7);
+			ZoneTools ZoneToolsValues8 = new ZoneTools("5/3 Up",T.$5_3_Up);
+			alZoneTools.add(ZoneToolsValues8);
+			ZoneTools ZoneToolsValues9 = new ZoneTools("MC Line",T.mcLine);
+			alZoneTools.add(ZoneToolsValues9);
+			ZoneTools ZoneToolsValues10 = new ZoneTools("PL Dot",T.plDot);
+			alZoneTools.add(ZoneToolsValues10);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);;
 			T.zoneCPurpose = "Where low forms to go to Congestion Exit Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Down_Ext);
-			//alist.add(T.$5_2_Downv deep);
-			//*alist.add(T.$5_9_Down);
+			zoneName = "A";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues11 = new ZoneTools("5/2 Down Ext",T.$5_2_Down_Ext);
+			alZoneTools.add(ZoneToolsValues11);					
 			if (T.$5_2_Down_Deep)
 			{
-				//*alist.add(T.$5_2_Down);					
+				ZoneTools ZoneToolsValues12 = new ZoneTools("5/2 Down Deep",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues12);					
 			}
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			ZoneTools ZoneToolsValues13 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues13);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);
 			T.zoneAPurpose = "Where high forms to go to Congestion Exit Up";
 		}
 		//***************************************************************************************************************************************
-		//*  Define Zones for Congestion Action 2nd Day  Up trading
+		//*  Define Zones for Congestion Entrance 2nd Day  Up trading
 		//***************************************************************************************************************************************
 		if ((T.congestionActionContinued) & (T.typeOfTradingDirection == "Up")) 
 		{
@@ -1547,67 +1940,96 @@ public class ZoneData extends PriceData{
 			// need short 5/2
 			// need 5/1 down in congestion
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.mcLine);
-			//*alist.add(T.$1_1_Low);
+			zoneName = "C";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues);
+			ZoneTools ZoneToolsValues1 = new ZoneTools("MC Line",T.mcLine);
+			alZoneTools.add(ZoneToolsValues1);
 			if (T.plDot < T.closePrice)
 			{
-				//*alist.add(T.plDot);
+				ZoneTools ZoneToolsValues2 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues2);
 			}
 			if (T.redBirdDot < T.closePrice)
 			{
-				//*alist.add(T.redBirdDot);
+				ZoneTools ZoneToolsValues3 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+				alZoneTools.add(ZoneToolsValues3);
 			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to go to Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Down);
-			//*alist.add(T.$5_9_Down);
-			if (T.$5_2_Down_Deep || T.$5_2_Down_Regular)
+			zoneName = "A";
+			alZoneTools.clear();
+			if (T.$5_2_Down_Regular)
 			{
-				//*alist.add(T.$5_2_Down);					
+				ZoneTools ZoneToolsValues4 = new ZoneTools("5/2 Down Regular",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues4);					
 			}
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			if (T.$5_2_Down_Deep)
+			{
+				ZoneTools ZoneToolsValues5 = new ZoneTools("5/2 Down Deep",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues5);					
+			}			
+			ZoneTools ZoneToolsValues6 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues6);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);			
 			T.zoneAPurpose = "Where low forms to go to Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$1_1_High);
-			//*alist.add(T.$6_1_Down);
-			//*alist.add(T.$5_1_Down);
+			zoneName = "B";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues7 = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues7);
 			if (T.$5_2_Down_Short)
 			{
-				//*alist.add(T.$5_2_Down);					
+				ZoneTools ZoneToolsValues8 = new ZoneTools("5/2 Down Short",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues8);					
+			}
+			ZoneTools ZoneToolsValues9 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues9);
+			if ((T.$5_1_Down >= T.lowPrice) && (T.$5_1_Down <= T.highPrice))
+			{
+				ZoneTools ZoneToolsValues10 = new ZoneTools("5/1 Down",T.$5_1_Down);
+				alZoneTools.add(ZoneToolsValues10);
 			}
 			if (T.plDot > T.closePrice)
 			{
-				//*alist.add(T.plDot);
+				ZoneTools ZoneToolsValues11 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues11);
 			}
 			if (T.mcLine > T.closePrice)
 			{
-				//*alist.add(T.mcLine);
+				ZoneTools ZoneToolsValues12 = new ZoneTools("MC Line",T.mcLine);
+				alZoneTools.add(ZoneToolsValues12);
 			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneBPurpose = "Where low forms to go to Congestion Action Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Up);
-			//*alist.add(T.$5_9_Up);
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			zoneName = "D";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues13 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues13);alZoneTools.clear();
+			ZoneTools ZoneToolsValues14 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues14);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);
 			T.zoneDPurpose = "Where high forms to go to Congestion Action Down";
 		}
 		//***************************************************************************************************************************************
@@ -1619,67 +2041,94 @@ public class ZoneData extends PriceData{
 			//*  Define the C Zone
 			// last block
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$6_5_Up);
-			//*alist.add(T.$5_3_Up);
-			//*alist.add(T.mcLine);
-			//*alist.add(T.redBirdDot);
-			//*alist.add(T.$1_1_Low);
-			//alist.add(T.last block to form);
-			if ((T.plDot >= T.lowPrice) || (T.plDot <= T.highPrice))
+			zoneName = "C";
+			alZoneTools.clear();			
+			ZoneTools ZoneToolsValues = new ZoneTools("6/5 Up",T.$6_5_Up);
+			alZoneTools.add(ZoneToolsValues);			
+			ZoneTools ZoneToolsValues1 = new ZoneTools("5/3 Up",T.$5_3_Up);
+			alZoneTools.add(ZoneToolsValues1);			
+			//ZoneTools ZoneToolsValues2 = new ZoneTools("Last Block to Form",T.lastBlockToForm);
+			//alZoneTools.add(ZoneToolsValues2);			
+			ZoneTools ZoneToolsValues3 = new ZoneTools("MC Line",T.mcLine);
+			alZoneTools.add(ZoneToolsValues3);			
+			ZoneTools ZoneToolsValues4 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+			alZoneTools.add(ZoneToolsValues4);			
+			ZoneTools ZoneToolsValues5 = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues5);			
+			if (T.plDotInRange)
 			{
-				//*alist.add(T.plDot);
+				ZoneTools ZoneToolsValues6 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues6);
 			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to go to Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			// need deep 5/2
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Down);
-			//*alist.add(T.$5_9_Down);
-			if (T.$5_2_Down_Deep || T.$5_2_Down_Regular)
+			zoneName = "A";
+			alZoneTools.clear();
+			if (T.$5_2_Down_Regular)
 			{
-				//*alist.add(T.$5_2_Down);					
+				ZoneTools ZoneToolsValues7 = new ZoneTools("5/2 Down Regular",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues7);					
 			}
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			if (T.$5_2_Down_Deep)
+			{
+				ZoneTools ZoneToolsValues8 = new ZoneTools("5/2 Down Deep",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues8);					
+			}			
+			ZoneTools ZoneToolsValues9 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues9);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneAPurpose = "Where low forms to go to Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			// need short 5/2 down
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$1_1_High);
+			zoneName = "B";
+			alZoneTools.clear();			
+			if ((T.$5_1_Down >= T.lowPrice) && (T.$5_1_Down <= T.highPrice))
+			{
+				ZoneTools ZoneToolsValues10 = new ZoneTools("5/1 Down",T.$5_1_Down);
+				alZoneTools.add(ZoneToolsValues10);
+			}
+			ZoneTools ZoneToolsValues10 = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues10);					
 			if (T.$5_2_Down_Short)
 			{
-				//*alist.add(T.$5_2_Down);					
+				ZoneTools ZoneToolsValues11 = new ZoneTools("5/2 Down",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues11);					
 			}
-			if ((T.$5_1_Down >= T.lowPrice) || (T.$5_1_Down <= T.highPrice))
-			{
-				//*alist.add(T.$5_1_Down);
-			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneBPurpose = "Where low forms to go to Congestion Action Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Up);
-			//*alist.add(T.$5_9_Up);
+			zoneName = "D";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues12 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues12);alZoneTools.clear();
+			ZoneTools ZoneToolsValues13 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues13);
 			if ((T.plDot < T.lowPrice) || (T.plDot > T.highPrice))
 			{
-				//*alist.add(T.plDot);
+				ZoneTools ZoneToolsValues14 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues14);
 			}
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);			
 			T.zoneDPurpose = "Where high forms to go to Congestion Action Down";
 		}
 		//***************************************************************************************************************************************
@@ -1690,63 +2139,87 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
+			zoneName = "C";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues);
 			if ((T.$6_1_Up >= T.lowPrice) || (T.$6_1_Up <= T.highPrice))
 			{
-				//*	alist.add(T.$6_1_Up);
+				ZoneTools ZoneToolsValues1 = new ZoneTools("6/1 Up",T.$6_1_Up);
+				alZoneTools.add(ZoneToolsValues1);
 			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to go to Congestion Exit Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Down);
-			//*alist.add(T.$5_9_Down);
-			if (T.$5_2_Down_Deep || T.$5_2_Down_Regular)
+			zoneName = "A";
+			alZoneTools.clear();
+			if (T.$5_2_Down_Regular)
 			{
-				//*alist.add(T.$5_2_Down);					
-			};
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+				ZoneTools ZoneToolsValues2 = new ZoneTools("5/2 Down Regular",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues2);					
+			}
+			if (T.$5_2_Down_Deep)
+			{
+				ZoneTools ZoneToolsValues3 = new ZoneTools("5/2 Down Deep",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues3);					
+			}			
+			ZoneTools ZoneToolsValues4 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues4);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneAPurpose = "Where low forms to go to Congestion Exit Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			// need last block
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$1_1_High);
-			//*alist.add(T.$6_1_Down);
+			zoneName = "B";
+			alZoneTools.clear();
+			//ZoneTools ZoneToolsValues5 = new ZoneTools("Last Block to From",T.LastBlocktoForm);
+			//alZoneTools.add(ZoneToolsValues5);
+			ZoneTools ZoneToolsValues6 = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues6);			
+			ZoneTools ZoneToolsValues7 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues7);
 			if (T.$5_2_Down_Short)
 			{
-				//*alist.add(T.$5_2_Down);					
+				ZoneTools ZoneToolsValues8 = new ZoneTools("5/2 Down Short",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues8);					
 			}
-			//	alist.add(T.last block);
-			if ((T.$5_1_Down >= T.lowPrice) || (T.$5_1_Down <= T.highPrice))
+			if ((T.$5_1_Down >= T.lowPrice) && (T.$5_1_Down <= T.highPrice))
 			{
-				//*alist.add(T.$5_1_Down);
+				ZoneTools ZoneToolsValues9 = new ZoneTools("5/1 Down",T.$5_1_Down);
+				alZoneTools.add(ZoneToolsValues9);
 			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneBPurpose = "Where low forms to go to Congestion Action Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Up);
-			//*alist.add(T.$5_9_Up);
+			zoneName = "D";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues10 = new ZoneTools("5/2Up",T.$5_2_Up);
+			alZoneTools.add(ZoneToolsValues10);alZoneTools.clear();
 			if ((T.$6_1_Up < T.lowPrice) || (T.$6_1_Up > T.highPrice))
 			{
-				//*	alist.add(T.$6_1_Up);
+				ZoneTools ZoneToolsValues11 = new ZoneTools("6/1 Up",T.$6_1_Up);
+				alZoneTools.add(ZoneToolsValues11);
 			}
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			ZoneTools ZoneToolsValues12 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues12);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);		
 			T.zoneDPurpose = "Where high forms to go to Congestion Action Down";
 		}
 		//***************************************************************************************************************************************
@@ -1757,73 +2230,99 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
 			//***************************************************************************************************************************************
-
-			//*alist.clear();
-			//*alist.add(T.$1_1_Low);
-			//*alist.add(T.$6_5_Up);
-			//*alist.add(T.plDot);
-			if (T.mcLine < T.closePrice) 
+			zoneName = "C";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues = new ZoneTools("1/1 Low",T.$1_1_Low);
+			alZoneTools.add(ZoneToolsValues);
+			ZoneTools ZoneToolsValues1 = new ZoneTools("6/5 Up",T.$6_5_Up);
+			alZoneTools.add(ZoneToolsValues1);
+			ZoneTools ZoneToolsValues2 = new ZoneTools("PL Dot",T.plDot);
+			alZoneTools.add(ZoneToolsValues2);
+			if (T.mcLine < T.closePrice)
 			{
-				//*alist.add(T.mcLine);
+				ZoneTools ZoneToolsValues3 = new ZoneTools("MC Line",T.mcLine);
+				alZoneTools.add(ZoneToolsValues3);
 			}
-			if (T.redBirdDot < T.closePrice) 
+			if (T.redBirdDot < T.closePrice)
 			{
-				//*alist.add(T.redBirdDot);
+				ZoneTools ZoneToolsValues4 = new ZoneTools("Red Bird Dot",T.redBirdDot);
+				alZoneTools.add(ZoneToolsValues4);
 			}
-			//*T.zoneCHigh = Collections.max(alist);
-			//*T.zoneCLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneCPurpose = "Where low forms to go to Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the A Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$5_2_Down);
-			//*alist.add(T.$5_9_Down);
-			if (T.$5_2_Down_Deep || T.$5_2_Down_Regular)
+			zoneName = "A";
+			alZoneTools.clear();
+			if (T.$5_2_Down_Regular)
 			{
-				//*	alist.add(T.$5_2_Down);					
+				ZoneTools ZoneToolsValues5 = new ZoneTools("5/2 Down Regular",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues5);					
 			}
-			//*T.zoneAHigh = Collections.max(alist);
-			//*T.zoneALow = Collections.min(alist);
+			if (T.$5_2_Down_Deep)
+			{
+				ZoneTools ZoneToolsValues6 = new ZoneTools("5/2 Down Deep",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues6);					
+			}			
+			ZoneTools ZoneToolsValues7 = new ZoneTools("5/9 Down",T.$5_9_Down);
+			alZoneTools.add(ZoneToolsValues7);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneAPurpose = "Where low forms to go to Trend Run Up";
 
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
 			// need last block
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$1_1_High);
-			//*alist.add(T.$6_1_Down);
+			zoneName = "B";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues8 = new ZoneTools("1/1 High",T.$1_1_High);
+			alZoneTools.add(ZoneToolsValues8);
 			if (T.$5_2_Down_Short)
 			{
-				//*	alist.add(T.$5_2_Down);					
+				ZoneTools ZoneToolsValues9 = new ZoneTools("5/2 Down Short",T.$5_2_Down);
+				alZoneTools.add(ZoneToolsValues9);					
 			}
-			//	alist.add(T.last block);
+			ZoneTools ZoneToolsValues10 = new ZoneTools("6/1 Down",T.$6_1_Down);
+			alZoneTools.add(ZoneToolsValues10);
 			if ((T.$5_1_Down >= T.lowPrice) || (T.$5_1_Down <= T.highPrice))
 			{
-				//*//*	alist.add(T.$5_1_Down);
+				ZoneTools ZoneToolsValues11 = new ZoneTools("5/1 Down",T.$5_1_Down);
+				alZoneTools.add(ZoneToolsValues11);
 			}
-			if (T.mcLine > T.closePrice) 
+			if (T.mcLine > T.closePrice)
 			{
-				//*	alist.add(T.mcLine);
+				ZoneTools ZoneToolsValues12 = new ZoneTools("MC Line",T.mcLine);
+				alZoneTools.add(ZoneToolsValues12);
 			}
-			if (T.plDot > T.closePrice) 
+			if (T.plDot > T.closePrice)
 			{
-				//*	alist.add(T.plDot);
+				ZoneTools ZoneToolsValues13 = new ZoneTools("PL Dot",T.plDot);
+				alZoneTools.add(ZoneToolsValues13);
 			}
-			//*T.zoneBHigh = Collections.max(alist);
-			//*T.zoneBLow = Collections.min(alist);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
 			T.zoneBPurpose = "Where low forms to go to Congestion Action Down";
 
 			//***************************************************************************************************************************************
 			//*  Define the D Zone
 			//***************************************************************************************************************************************
-			//*alist.clear();
-			//*alist.add(T.$6_1_Up);
-			//*alist.add(T.$5_9_Up);
-			//*T.zoneDHigh = Collections.max(alist);
-			//*T.zoneDLow = Collections.min(alist);
+			zoneName = "D";
+			alZoneTools.clear();
+			ZoneTools ZoneToolsValues14 = new ZoneTools("5/9 Up",T.$5_9_Up);
+			alZoneTools.add(ZoneToolsValues14);alZoneTools.clear();
+			ZoneTools ZoneToolsValues15 = new ZoneTools("6/1 Up",T.$6_1_Up);
+			alZoneTools.add(ZoneToolsValues15);
+			applyZoneRules(alZoneTools, T, p, ZoneStats, zoneName);
+			loadZoneToolsArray(alZoneTools, T, zoneName);
+			setZoneBoundaries(alZoneTools, T, zoneName);
+			applyZoneRule6(T, p);		
 			T.zoneDPurpose = "Where high forms to go to Congestion Action Down";
 		}
 	}	
