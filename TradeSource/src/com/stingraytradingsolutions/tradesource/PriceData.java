@@ -69,6 +69,7 @@ public class PriceData
 		// More PL Energy Indicator
 		public boolean isolatedHigh;
 		public boolean isolatedLow;
+		public boolean dottedLine;
 		public boolean dottedLineHigh;
 		public boolean dottedLineLow;
 		public double dottedLineValue;
@@ -102,9 +103,9 @@ public class PriceData
 		public double downSideBlockLevelValue;
 		public boolean topSideBlockLevel;
 		public double topSideBlockLevelValue;
-		public boolean dottedLine;
 		public double congestionParameterHigh;
-		public double congestionParameterLow;		
+		public double congestionParameterLow;
+		public double lastBlockToForm;							//20181104  Added block level and congestion parameter functionality
 		// Type of Trading
 		public String typeOfTrading;
 		public String typeOfTradingDirection;
@@ -220,6 +221,7 @@ public class PriceData
 			this.$6_7_Down = 0;
 			this.isolatedHigh = false;
 			this.isolatedLow = false;
+			this.dottedLine= false;
 			this.dottedLineHigh = false;
 			this.dottedLineLow = false;
 			this.dottedLineValue =0;
@@ -253,9 +255,9 @@ public class PriceData
 			this.topSideBlockLevelValue=0;
 			this.downSideBlockLevel= false;
 			this.downSideBlockLevelValue=0;
-			this.dottedLine= false;
 			this.congestionParameterHigh =0;
 			this.congestionParameterLow =0;
+			this.lastBlockToForm = 0;								//20181104  Added block level and congestion parameter functionality
 			this.typeOfTrading = null;
 			this.typeOfTradingDirection = null;
 			this.trendRunUp = false;
@@ -369,6 +371,7 @@ public class PriceData
 			this.$6_7_Down = T.$6_7_Down;
 			this.isolatedHigh = T.isolatedHigh;
 			this.isolatedLow = T.isolatedLow;
+			this.dottedLine = T.dottedLine;
 			this.dottedLineHigh = T.dottedLineHigh;
 			this.dottedLineLow = T.dottedLineLow;
 			this.dottedLineValue = T.dottedLineValue;
@@ -402,9 +405,9 @@ public class PriceData
 			this.topSideBlockLevelValue= T.topSideBlockLevelValue;
 			this.downSideBlockLevel = T.downSideBlockLevel;
 			this.downSideBlockLevelValue = T.downSideBlockLevelValue;
-			this.dottedLine = T.dottedLine;
 			this.congestionParameterHigh = T.congestionParameterHigh;
 			this.congestionParameterLow = T.congestionParameterLow;
+			this.lastBlockToForm = T.lastBlockToForm;									//20181104  Added block level and congestion parameter functionality
 			this.typeOfTrading = T.typeOfTrading;
 			this.typeOfTradingDirection = T.typeOfTradingDirection;
 			this.trendRunUp = T.trendRunUp;
@@ -560,7 +563,7 @@ public class PriceData
 		
     	//***************************************************************************************************************************************
 		//* 
-		//*  Method to determine the isolated high for T1 and return value to be used to update array list for T1
+		//*  NOT CURRENTLY USED:   Method to determine the isolated high for T1 and return value to be used to update array list for T1
 		//*
 		//*  Input: Price objects for current time period and two previous time periods
 		//*  Output: Boolean value to indicate isolated high
@@ -573,7 +576,7 @@ public class PriceData
 		
     	//***************************************************************************************************************************************
 		//* 
-		//*  Method to determine the isolated low for T1 and return value to be used to update array list for T1
+		//*  NOT CURRENTLY USED:   Method to determine the isolated low for T1 and return value to be used to update array list for T1
 		//*
 		//*  Input: Price objects for current time period and two previous time periods
 		//*  Output: Boolean value to indicate isolated low
@@ -612,8 +615,9 @@ public class PriceData
 				T1.dottedLine = true;
 				T1.dottedLineHigh = true;
 				T1.dottedLineValue = T1.highPrice;
-				T1.congestionParameterHigh = T1.highPrice;
+				T.congestionParameterHigh = T1.highPrice;											//20181104  Added block level and congestion parameter functionality
 				LASTCONGESTIONPARAMETERHIGH = T1.highPrice;
+				
     		}
    		   	else
     		{
@@ -622,7 +626,7 @@ public class PriceData
    		   			T2.dottedLine = true;
    		   			T2.dottedLineHigh = true;
    		   			T2.dottedLineValue = T2.highPrice;
-   		   			T2.congestionParameterHigh = T2.highPrice;
+   		   			T.congestionParameterHigh = T2.highPrice;										//20181104  Added block level and congestion parameter functionality
    		   			LASTCONGESTIONPARAMETERHIGH = T2.highPrice;
    		   		}
    		   		else
@@ -632,7 +636,7 @@ public class PriceData
    		   				T3.dottedLine = true;
    		   				T3.dottedLineHigh = true;
    		   				T3.dottedLineValue = T3.highPrice;
-   		   				T3.congestionParameterHigh = T3.highPrice;
+   		   				T.congestionParameterHigh = T3.highPrice;									//20181104  Added block level and congestion parameter functionality
    		   				LASTCONGESTIONPARAMETERHIGH = T3.highPrice;
    		   			}
    		   			else
@@ -642,7 +646,7 @@ public class PriceData
    		   					T4.dottedLine = true;
    		   					T4.dottedLineHigh = true;
    		   					T4.dottedLineValue = T4.highPrice;
-   		   					T4.congestionParameterHigh = T4.highPrice;
+   		   					T.congestionParameterHigh = T4.highPrice;								//20181104  Added block level and congestion parameter functionality
    		   					LASTCONGESTIONPARAMETERHIGH = T4.highPrice;
    		   				}
    		   				else
@@ -652,7 +656,7 @@ public class PriceData
    		   						T.dottedLine = true;
    		   						T.dottedLineHigh = true;
    		   						T.dottedLineValue = T.highPrice;
-   		   						T.congestionParameterHigh = T.highPrice;
+   		   						T.congestionParameterHigh = T.highPrice;							//20181104  Added block level and congestion parameter functionality
    		   						LASTCONGESTIONPARAMETERHIGH = T.highPrice;
    		   						//T1.priceDate = "Dotted Line Failed for Down Side Block Level";
    		   					}
@@ -670,7 +674,7 @@ public class PriceData
 				T1.dottedLine = true;
 				T1.dottedLineLow = true;
 				T1.dottedLineValue = T1.lowPrice;
-				T1.congestionParameterLow = T1.lowPrice;
+				T.congestionParameterLow = T1.lowPrice;												//20181104  Added block level and congestion parameter functionality
 				LASTCONGESTIONPARAMETERLOW = T1.lowPrice;
     		}
    		   	else
@@ -680,7 +684,7 @@ public class PriceData
    		   			T2.dottedLine = true;
    		   			T2.dottedLineLow = true;
    		   			T2.dottedLineValue = T2.lowPrice;
-   		   			T2.congestionParameterLow = T2.lowPrice;
+   		   			T.congestionParameterLow = T2.lowPrice;											//20181104  Added block level and congestion parameter functionality
    		   			LASTCONGESTIONPARAMETERLOW = T2.lowPrice;
    		   		}
    		   		else
@@ -690,7 +694,7 @@ public class PriceData
    		   				T3.dottedLine = true;
    		   				T3.dottedLineLow = true;
    		   				T3.dottedLineValue = T3.lowPrice;
-   		   				T3.congestionParameterLow = T3.lowPrice;
+   		   				T.congestionParameterLow = T3.lowPrice;										//20181104  Added block level and congestion parameter functionality
    		   				LASTCONGESTIONPARAMETERLOW = T3.lowPrice;
    		   			}
    		   			else
@@ -700,7 +704,7 @@ public class PriceData
    		   					T4.dottedLine = true;
    		   					T4.dottedLineLow = true;
    		   					T4.dottedLineValue = T4.lowPrice;
-   		   					T4.congestionParameterLow = T4.lowPrice;
+   		   					T.congestionParameterLow = T4.lowPrice;									//20181104  Added block level and congestion parameter functionality
    		   					LASTCONGESTIONPARAMETERLOW = T4.lowPrice;
    		   				}
    		   				else
@@ -710,7 +714,7 @@ public class PriceData
    		   						T.dottedLine = true;
    		   						T.dottedLineLow = true;
    		   						T.dottedLineValue = T.lowPrice;
-   		   						T.congestionParameterLow = T.lowPrice;
+   		   						T.congestionParameterLow = T.lowPrice;								//20181104  Added block level and congestion parameter functionality
    		   						LASTCONGESTIONPARAMETERLOW = T.lowPrice;
    		   						//T1.priceDate = "Dotted Line Failed for Top Side Block Level";
    		   					}
@@ -732,7 +736,7 @@ public class PriceData
    	 				T2.dottedLine = true;
    	 				T2.dottedLineHigh = true;
    	 				T2.dottedLineValue = T2.highPrice;
-   	 				T2.congestionParameterHigh = T2.highPrice;
+   	 				T1.congestionParameterHigh = T2.highPrice;										//20181104  Added block level and congestion parameter functionality
    	 				LASTCONGESTIONPARAMETERHIGH = T2.highPrice;
    	 			}
    	 		}
@@ -750,7 +754,7 @@ public class PriceData
 	 				T2.dottedLine = true;
 	 				T2.dottedLineLow = true;
 	 				T2.dottedLineValue = T2.lowPrice;
-	 				T2.congestionParameterLow = T2.lowPrice;
+	 				T1.congestionParameterLow = T2.lowPrice;										//20181104  Added block level and congestion parameter functionality
 	 				LASTCONGESTIONPARAMETERLOW = T2.lowPrice;
 	 			}
 	 		}
@@ -764,8 +768,9 @@ public class PriceData
 		//*  Input: Price objects for current time period and two previous time periods
 		//*  Output: Price Object for current time period with updated PnL Tools
 		//*
+		//*
     	//***************************************************************************************************************************************
-		public void calcPLTools(PriceData T, PriceData T1, PriceData T2, Properties p)
+		public void calcPLTools(PriceData T, PriceData T1, PriceData T2, Properties p, ZoneStatistics zs)  // 20181014 - Added the ZoneStatistics class 
 		{
 			
 			//***************************************************************************************************************************************
@@ -1137,7 +1142,7 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 	    	//Determine of type of 5/2 Deep, Regular, or Short
 	    	//***************************************************************************************************************************************	    	
-			double overSizedZone = 20;
+			double overSizedZone = zs.getSizeOfOversizedZone();										 								// 20181014 - Added the ZoneStatistics class to get oversized zone size to determine 5/2 type
 	    	if (T.lowPrice < T1.lowPrice)
 	    	{
 	    		if (T.$5_2_Up < (T.lowPrice - (2 * overSizedZone)))
@@ -1161,17 +1166,17 @@ public class PriceData
 	    	{
 	    		if (T.$5_2_Down > (T.highPrice + (2 * overSizedZone)))
 	    		{
-	    			T.$5_2_Up_Deep = true;
+	    			T.$5_2_Down_Deep = true;
 	    		}
 	    		else
 	    		{
 	    			if (T.$5_2_Down > (T.highPrice + overSizedZone))
 	    			{
-	    				T.$5_2_Up_Regular = true;	
+	    				T.$5_2_Down_Regular = true;	
 	    			}
 	    			else
 	    			{
-	    				T.$5_2_Up_Short = true;
+	    				T.$5_2_Down_Short = true;
 	    			}
 	    		}
 	    	}
@@ -1235,6 +1240,7 @@ public class PriceData
 				T.downSideBlockLevel = false;
 		    	T.topSideBlockLevel = true;
 		    	T.topSideBlockLevelValue = T.highPrice;
+		    	T.lastBlockToForm = T.highPrice;													//20181104  Added block level and congestion parameter functionality
 				}
 			
 	    	if ((T1.congestionEntranceUp) && (T.closeBelowPLDot));
@@ -1242,6 +1248,7 @@ public class PriceData
 				T.downSideBlockLevel = true;
 		    	T.topSideBlockLevel = false;
 		    	T.topSideBlockLevelValue = T.lowPrice;
+		    	T.lastBlockToForm = T.lowPrice;														//20181104  Added block level and congestion parameter functionality
 				}
 				
 	    	if ((! T.trendRunUp) && (T1.trendRunUp))
@@ -1249,7 +1256,8 @@ public class PriceData
 	    		T.downSideBlockLevel = true;
 	    		T.topSideBlockLevel = false;
 	    		T.downSideBlockLevelValue = T.lowPrice;
-	    		T.congestionParameterLow = T.lowPrice;
+	    		T.congestionParameterLow = T.lowPrice;												//20181104  Added block level and congestion parameter functionality
+	    		T.lastBlockToForm = T.lowPrice;														//20181104  Added block level and congestion parameter functionality
 	    		LASTCONGESTIONPARAMETERLOW = T.lowPrice;
 	    		}
 	    	else
@@ -1259,13 +1267,15 @@ public class PriceData
 	    			T.downSideBlockLevel = false;
 		    		T.topSideBlockLevel = true;
 		    		T.topSideBlockLevelValue = T.highPrice;
-		    		T.congestionParameterHigh = T.highPrice;
+		    		T.congestionParameterHigh = T.highPrice;										//20181104  Added block level and congestion parameter functionality
+		    		T.lastBlockToForm = T.highPrice;												//20181104  Added block level and congestion parameter functionality
 		    		LASTCONGESTIONPARAMETERHIGH = T.highPrice;
 	    			}
 	    		else
 	    			{
 	    			T.downSideBlockLevel = false;
 	    			T.topSideBlockLevel = false;
+	    			T.lastBlockToForm = 0;															//20181104  Added block level and congestion parameter functionality
 	    			}
 	    		}
 	    	
@@ -1412,6 +1422,8 @@ public class PriceData
 			    		System.out.println("Congestion Entrance Up Day 1: " +" Date: "+ T.priceDate);	
 					}
 		    	}
+				//T.congestionParameterLow = T1.congestionParameterLow;
+				//T.congestionParameterHigh = T1.congestionParameterHigh;
 			}
 
 	    		
@@ -1427,6 +1439,9 @@ public class PriceData
 		    		T.congestionEntranceContinued = true;
 		    		T.typeOfTrading = "CEnt2";
 		    		T.typeOfTradingDirection = "Down";
+					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
+					T.congestionParameterHigh = T1.congestionParameterHigh;							//20181104  Added block level and congestion parameter functionality
+					T.lastBlockToForm = T1.lastBlockToForm;											//20181104  Added block level and congestion parameter functionality
 		    		System.out.println("Congestion Entrance Down Day 2: " +" Date: "+ T.priceDate);
 		    	}
 		    	else
@@ -1438,6 +1453,9 @@ public class PriceData
 			    		T.congestionEntranceContinued = true;
 			    		T.typeOfTrading = "CEnt2";
 			    		T.typeOfTradingDirection = "Up";
+						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
+						T.congestionParameterHigh = T1.congestionParameterHigh;						//20181104  Added block level and congestion parameter functionality
+						T.lastBlockToForm = T1.lastBlockToForm;										//20181104  Added block level and congestion parameter functionality
 			    		System.out.println("Congestion Entrance Up Day 2: " +" Date: "+ T.priceDate);	
 		    		}
 		    	}
@@ -1457,6 +1475,9 @@ public class PriceData
 		    		T.downSideBlockLevelValue = T.lowPrice;
 		    		T.typeOfTrading = "CAct";
 		    		T.typeOfTradingDirection = "Down";
+					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
+					T.congestionParameterHigh = T1.congestionParameterHigh;							//20181104  Added block level and congestion parameter functionality
+					T.lastBlockToForm = T.lowPrice;													//20181104  Added block level and congestion parameter functionality
 		    		System.out.println("Congestion Action Down: " +" Date: "+ T.priceDate);
 		    	}
 		    	else
@@ -1469,6 +1490,9 @@ public class PriceData
 		    			T.topSideBlockLevelValue = T.highPrice;
 		    			T.typeOfTrading = "CAct";
 			    		T.typeOfTradingDirection = "Up";
+						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
+						T.congestionParameterHigh = T1.congestionParameterHigh;						//20181104  Added block level and congestion parameter functionality
+						T.lastBlockToForm = T.highPrice;											//20181104  Added block level and congestion parameter functionality
 			    		System.out.println("Congestion Action Up: " +" Date: "+ T.priceDate);	
 		    		}
 		    	}	
@@ -1481,6 +1505,9 @@ public class PriceData
 		    		T.downSideBlockLevelValue = T.lowPrice;
 		    		T.typeOfTrading = "CAct";
 		    		T.typeOfTradingDirection = "Down";
+					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
+					T.congestionParameterHigh = T1.congestionParameterHigh;							//20181104  Added block level and congestion parameter functionality
+					T.lastBlockToForm = T.lowPrice;													//20181104  Added block level and congestion parameter functionality
 		    		System.out.println("Congestion Action Down: " +" Date: "+ T.priceDate);
 		    	}
 		    	else
@@ -1493,6 +1520,9 @@ public class PriceData
 		    			T.topSideBlockLevelValue = T.highPrice;
 		    			T.typeOfTrading = "CAct";
 			    		T.typeOfTradingDirection = "Up";
+						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
+						T.congestionParameterHigh = T1.congestionParameterHigh;						//20181104  Added block level and congestion parameter functionality
+						T.lastBlockToForm = T.highPrice;											//20181104  Added block level and congestion parameter functionality
 			    		System.out.println("Congestion Action Up: " +" Date: "+ T.priceDate);	
 		    		}
 		    	}
@@ -1510,6 +1540,9 @@ public class PriceData
 		    		T.congestionActionContinuedUp = true;
 		    		T.typeOfTrading = "CAct2";
 		    		T.typeOfTradingDirection = "Up";
+					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
+					T.congestionParameterHigh = T1.congestionParameterHigh;							//20181104  Added block level and congestion parameter functionality
+					T.lastBlockToForm = T1.lastBlockToForm;											//20181104  Added block level and congestion parameter functionality
 		    		System.out.println("Congestion Action Continued Up: " +" Date: "+ T.priceDate);
 		    	}
 		    	else
@@ -1520,6 +1553,9 @@ public class PriceData
 		    			T.congestionActionContinuedDown = true;
 			    		T.typeOfTrading = "CAct2";
 			    		T.typeOfTradingDirection = "Down";
+						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
+						T.congestionParameterHigh = T1.congestionParameterHigh;						//20181104  Added block level and congestion parameter functionality
+						T.lastBlockToForm = T1.lastBlockToForm;										//20181104  Added block level and congestion parameter functionality
 			    		System.out.println("Congestion Action Continued Down: " +" Date: "+ T.priceDate);
 		    		}
 		    	}
@@ -1538,6 +1574,9 @@ public class PriceData
 		    		T.typeOfTradingDirection = "Up";
 		    		System.out.println("Congestion Exit Up: " +" Date: "+ T.priceDate);
 		    		System.out.println("T close Price: " + T.closePrice);
+					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
+					T.congestionParameterHigh = T1.congestionParameterHigh;							//20181104  Added block level and congestion parameter functionality
+					T.lastBlockToForm = T1.lastBlockToForm;											//20181104  Added block level and congestion parameter functionality
 		    		System.out.println("LASTCONGESTIONPARAMETERHIGH "+ LASTCONGESTIONPARAMETERHIGH);
 		    	}
 		    	else
@@ -1548,6 +1587,9 @@ public class PriceData
 		    			T.congestionExitDown = true;
 			    		T.typeOfTrading = "CExit";
 			    		T.typeOfTradingDirection = "Down";
+						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
+						T.congestionParameterHigh = T1.congestionParameterHigh;						//20181104  Added block level and congestion parameter functionality
+						T.lastBlockToForm = T1.lastBlockToForm;										//20181104  Added block level and congestion parameter functionality
 			    		System.out.println("Congestion Exit Down: " +" Date: "+ T.priceDate);
 		    		}
 		    	}
@@ -1566,6 +1608,9 @@ public class PriceData
 		    		T.congestionExitDay2Up = true;
 		    		T.typeOfTrading = "CExit2";
 		    		T.typeOfTradingDirection = "Up";
+					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
+					T.congestionParameterHigh = T1.congestionParameterHigh;							//20181104  Added block level and congestion parameter functionality
+					T.lastBlockToForm = T1.lastBlockToForm;											//20181104  Added block level and congestion parameter functionality
 		    		System.out.println("Congestion Exit Day 2 Up: " +" Date: "+ T.priceDate);
 		    	}
 		    	else
@@ -1576,6 +1621,9 @@ public class PriceData
 		    			T.congestionExitDay2Down = true;
 			    		T.typeOfTrading = "CExit2";
 			    		T.typeOfTradingDirection = "Down";
+						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
+						T.congestionParameterHigh = T1.congestionParameterHigh;						//20181104  Added block level and congestion parameter functionality
+						T.lastBlockToForm = T1.lastBlockToForm;										//20181104  Added block level and congestion parameter functionality
 			    		System.out.println("Congestion Exit Day2 Down: " +" Date: "+ T.priceDate);
 		    		}
 		    	}
@@ -1630,4 +1678,4 @@ public class PriceData
 		{
 			return closePrice;
 		}
-		}
+}

@@ -781,7 +781,7 @@ public class ZoneData extends PriceData{
 	}
 	/**
 	 *  This method will find the boundaries and width of the current zone
-	 *  The method will define the zone high low and range for the currnet zone being created, these values will be used in Zone Rules 4, 5, and 5A
+	 *  The method will define the zone high low and range for the current zone being created, these values will be used in Zone Rules 4, 5, and 5A
 	 *  
 	 *  Input:
 	 *  
@@ -806,7 +806,7 @@ public class ZoneData extends PriceData{
 	}
 
 	/**
-	 *  This method will define the zones for the 4 zones for each type of trading.
+	 *  This method will define the tools used for the 4 zones for each type of trading.
 	 *  
 	 *  Input:  Current Price Data object
 	 *  		Array list of the PriceData object for all prices the have been read 
@@ -829,10 +829,10 @@ public class ZoneData extends PriceData{
 	 *   	7.			Determine the boundaries (high and low) of the zone and update the Price Data object
 	 *   	8.		Apply Rule 6      
 	 */
-	public void setZoneData(PriceData T, ArrayList <ZoneData> alPriceData, Properties p)
+	public void setZoneData(PriceData T, ArrayList <ZoneData> alPriceData, Properties p, ZoneStatistics ZoneStats)
 	{
-		ZoneStatistics ZoneStats = new ZoneStatistics();
-		setAverageRangeandZoneStatistics(alPriceData, p, ZoneStats); 
+		//*ZoneStatistics ZoneStats = new ZoneStatistics();																			// 20181014 - Moved to be called from Readand Parse... to use in CalcPLTools
+		//*setAverageRangeandZoneStatistics(alPriceData, p, ZoneStats);																// 20181014 - Moved to be called from Readand Parse... to use in CalcPLTools
 		
 		//*ArrayList<Double> alist = new ArrayList<Double>();
 		ArrayList<ZoneTools> alZoneTools = new ArrayList<ZoneTools>();
@@ -1111,15 +1111,20 @@ public class ZoneData extends PriceData{
 			//***************************************************************************************************************************************
 			zoneName = "C";
 			alZoneTools.clear();			
-			//* NEED TO ADD CURRENT BLOCK LEVEL AND 5/1 AND 6/1 TO SEE IF THEY ARE IN THE CONGESTION PARMS
-			//ZoneTools ZoneToolsValues = new ZoneTools("Currnet Block Level",T.Currnet Block Level);
-			//alZoneTools.add(ZoneToolsValues);
+			ZoneTools ZoneToolsValues = new ZoneTools("Block Level",T.downSideBlockLevelValue);				//20181104  Added block level and congestion parameter functionality 
+			alZoneTools.add(ZoneToolsValues);																//20181104  Added block level and congestion parameter functionality
 			ZoneTools ZoneToolsValues1 = new ZoneTools("1/1 Low",T.$1_1_Low);
 			alZoneTools.add(ZoneToolsValues1);			
-			ZoneTools ZoneToolsValues2 = new ZoneTools("6/1 Up",T.$6_1_Up);
-			alZoneTools.add(ZoneToolsValues2);			
-			ZoneTools ZoneToolsValues3 = new ZoneTools("5/1 Up",T.$5_1_Up);
-			alZoneTools.add(ZoneToolsValues3);			
+			if ((T.$6_1_Up <= T.congestionParameterHigh) && (T.$6_1_Up >= T.congestionParameterLow))		//20181104  Added block level and congestion parameter functionality
+			{
+				ZoneTools ZoneToolsValues2 = new ZoneTools("6/1 Up",T.$6_1_Up);								//20181104  Added block level and congestion parameter functionality
+				alZoneTools.add(ZoneToolsValues2);															//20181104  Added block level and congestion parameter functionality
+			}
+			if ((T.$5_1_Up <= T.congestionParameterHigh) && (T.$5_1_Up >= T.congestionParameterLow))		//20181104  Added block level and congestion parameter functionality
+			{
+				ZoneTools ZoneToolsValues3 = new ZoneTools("5/1 Up",T.$5_1_Up);								//20181104  Added block level and congestion parameter functionality
+				alZoneTools.add(ZoneToolsValues3);															//20181104  Added block level and congestion parameter functionality
+			}			
 			if (T.$5_2_Up_Short)
 			{
 				ZoneTools ZoneToolsValues4 = new ZoneTools("5/2 Up Short",T.$5_2_Up);
@@ -1293,7 +1298,6 @@ public class ZoneData extends PriceData{
 		{
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
-			//* Need Last block to form
 			//***************************************************************************************************************************************
 			zoneName = "B";
 			alZoneTools.clear();			
@@ -1301,8 +1305,8 @@ public class ZoneData extends PriceData{
 			alZoneTools.add(ZoneToolsValues);			
 			ZoneTools ZoneToolsValues1 = new ZoneTools("5/3 Down",T.$5_3_Down);
 			alZoneTools.add(ZoneToolsValues1);			
-			//ZoneTools ZoneToolsValues2 = new ZoneTools("Last Block to Form",T.lastBlockToForm);
-			//alZoneTools.add(ZoneToolsValues2);			
+			ZoneTools ZoneToolsValues2 = new ZoneTools("Last Block",T.lastBlockToForm);				//20181104  Added block level and congestion parameter functionality
+			alZoneTools.add(ZoneToolsValues2);			
 			ZoneTools ZoneToolsValues3 = new ZoneTools("MC Line",T.mcLine);
 			alZoneTools.add(ZoneToolsValues3);			
 			ZoneTools ZoneToolsValues4 = new ZoneTools("Red Bird Dot",T.redBirdDot);
@@ -1430,13 +1434,11 @@ public class ZoneData extends PriceData{
 
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
-			//* Need Last Block to Form
-			//* Need short 5/2 up
 			//***************************************************************************************************************************************
 			zoneName = "C";
 			alZoneTools.clear();
-			//ZoneTools ZoneToolsValues5 = new ZoneTools("Last Block to Form",T.$1_1_Low);
-			//alZoneTools.add(ZoneToolsValues5);			
+			ZoneTools ZoneToolsValues5 = new ZoneTools("Last Block",T.lastBlockToForm);				//20181104  Added block level and congestion parameter functionality
+			alZoneTools.add(ZoneToolsValues5);			
 			ZoneTools ZoneToolsValues6 = new ZoneTools("1/1 Low",T.$1_1_Low);
 			alZoneTools.add(ZoneToolsValues6);			
 			ZoneTools ZoneToolsValues7 = new ZoneTools("6/1 Up",T.$6_1_Up);
@@ -1848,13 +1850,11 @@ public class ZoneData extends PriceData{
 		{
 			//***************************************************************************************************************************************
 			//*  Define the B Zone
-			// need current blocklevel
-			// need 5/1 down in congestion
 			//***************************************************************************************************************************************
 			zoneName = "B";
 			alZoneTools.clear();
-			//ZoneTools ZoneToolsValues = new ZoneTools("Current Block Level",T.Current Block Level);
-			//alZoneTools.add(ZoneToolsValues);
+			ZoneTools ZoneToolsValues = new ZoneTools("Current Block Level",T.congestionParameterHigh);		//20181104  Added block level and congestion parameter functionality
+			alZoneTools.add(ZoneToolsValues);
 			ZoneTools ZoneToolsValues1 = new ZoneTools("1/1 High",T.$1_1_High);
 			alZoneTools.add(ZoneToolsValues1);			
 			if (T.$5_2_Down_Short)
@@ -1862,10 +1862,12 @@ public class ZoneData extends PriceData{
 				ZoneTools ZoneToolsValues2 = new ZoneTools("5/2 Down Short",T.$5_2_Down);
 				alZoneTools.add(ZoneToolsValues2);					
 			}
-			ZoneTools ZoneToolsValues3 = new ZoneTools("6/1 Down",T.$6_1_Down);
-			alZoneTools.add(ZoneToolsValues3);
-			// Needs to be in congestion range rather than price range
-			if ((T.$5_1_Down >= T.lowPrice) && (T.$5_1_Down <= T.highPrice))
+			if ((T.$6_1_Down >= T.congestionParameterLow) && (T.$6_1_Down <= T.congestionParameterHigh))	//20181104  Added block level and congestion parameter functionality
+			{
+				ZoneTools ZoneToolsValues3 = new ZoneTools("6/1 Down",T.$6_1_Down);
+				alZoneTools.add(ZoneToolsValues3);
+			}
+			if ((T.$5_1_Down >= T.congestionParameterLow) && (T.$5_1_Down <= T.congestionParameterHigh))	//20181104  Added block level and congestion parameter functionality
 			{
 				ZoneTools ZoneToolsValues4 = new ZoneTools("5/1 Down",T.$5_1_Down);
 				alZoneTools.add(ZoneToolsValues4);
@@ -1936,9 +1938,6 @@ public class ZoneData extends PriceData{
 		{
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
-			// need current blocklevel
-			// need short 5/2
-			// need 5/1 down in congestion
 			//***************************************************************************************************************************************
 			zoneName = "C";
 			alZoneTools.clear();
@@ -2039,7 +2038,6 @@ public class ZoneData extends PriceData{
 		{
 			//***************************************************************************************************************************************
 			//*  Define the C Zone
-			// last block
 			//***************************************************************************************************************************************
 			zoneName = "C";
 			alZoneTools.clear();			
@@ -2047,8 +2045,8 @@ public class ZoneData extends PriceData{
 			alZoneTools.add(ZoneToolsValues);			
 			ZoneTools ZoneToolsValues1 = new ZoneTools("5/3 Up",T.$5_3_Up);
 			alZoneTools.add(ZoneToolsValues1);			
-			//ZoneTools ZoneToolsValues2 = new ZoneTools("Last Block to Form",T.lastBlockToForm);
-			//alZoneTools.add(ZoneToolsValues2);			
+			ZoneTools ZoneToolsValues2 = new ZoneTools("Last Block",T.lastBlockToForm);				//20181104  Added block level and congestion parameter functionality
+			alZoneTools.add(ZoneToolsValues2);														//20181104  Added block level and congestion parameter functionality
 			ZoneTools ZoneToolsValues3 = new ZoneTools("MC Line",T.mcLine);
 			alZoneTools.add(ZoneToolsValues3);			
 			ZoneTools ZoneToolsValues4 = new ZoneTools("Red Bird Dot",T.redBirdDot);

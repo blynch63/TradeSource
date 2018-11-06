@@ -190,10 +190,15 @@ public class ReadandParsePriceFileintoArrayList {
 			        		     		        PriceData_T.setPLDot(PriceData_T, PriceData_T1, PriceData_T2);
 			        		     		      
 			        		     		        //********************************************************************************
+			        		     		        // Set Zone Statistics
+			                	 				//********************************************************************************
+			        		     				ZoneStatistics ZoneStats = new ZoneStatistics();									// 20181014 - Added to calc zone stats to be used on calcPLTools
+			        		     				PriceData_T.setAverageRangeandZoneStatistics(al, p, ZoneStats);						// 20181014 - Added to calc zone stats to be used on calcPLTools
+			        		     				//********************************************************************************
 			        		     		        // Calculate PL Tools for T and T-1
 			        		     		        //********************************************************************************
-			        		     		        PriceData_T.calcPLTools(PriceData_T, PriceData_T1, PriceData_T2, p);
-			        		     		        PriceData_T1.calcPLTools(PriceData_T1, PriceData_T2, PriceData_T3, p);
+			        		     		        PriceData_T.calcPLTools(PriceData_T, PriceData_T1, PriceData_T2, p, ZoneStats);		// 20181014 - Added to pass ZoneStats
+			        		     		        PriceData_T1.calcPLTools(PriceData_T1, PriceData_T2, PriceData_T3, p, ZoneStats);	// 20181014 - Added to pass ZoneStats
 			        		     		      
 			        		     		        //********************************************************************************
 			        		     		        // Determine if the price bar for T1 and T2 contain an isolated high or low
@@ -253,9 +258,14 @@ public class ReadandParsePriceFileintoArrayList {
 			        		     		        PriceData_T.setPLDot(PriceData_T, PriceData_T1, PriceData_T2);
 			        		     		        
 			                	 				//********************************************************************************
+			        		     		        // Calculate Zone Statistics
+			                	 				//********************************************************************************
+			        		     				ZoneStatistics ZoneStats = new ZoneStatistics();  									// 20181014 - Added to calc zone stats to be used in calcPLTools 
+			        		     				PriceData_T.setAverageRangeandZoneStatistics(al, p, ZoneStats); 					// 20181014 - Added to calc zone stats to be used in calcPLTools
+			                	 				//********************************************************************************
 			        		     		        // Calculate PL Tools for T
 			                	 				//********************************************************************************
-			        		     		        PriceData_T.calcPLTools(PriceData_T, PriceData_T1, PriceData_T2, p);
+			        		     		        PriceData_T.calcPLTools(PriceData_T, PriceData_T1, PriceData_T2, p, ZoneStats);		// 20181014 - Added to pass ZoneStats 
 			        		     		   
 			        		     		        
 			        		     		        //********************************************************************************
@@ -310,7 +320,8 @@ public class ReadandParsePriceFileintoArrayList {
 			        		     		        //********************************************************************************
 			        		     		        //PriceData_T.setZoneRange(PriceData_T); 
 			        		     		        //PriceData_T.setAverageRangeandZoneStatistics(al, p);
-			        		     		        PriceData_T.setZoneData(PriceData_T, al, p); 
+			        		     		        //PriceData_T.setZoneData(PriceData_T, al, p); 
+			        		     		        PriceData_T.setZoneData(PriceData_T, al, p, ZoneStats); 
 			        		     		        //********************************************************************************
 			        		                    // Add instances T of Price Data object to the array list
 			        		     		        //********************************************************************************
@@ -353,7 +364,7 @@ public class ReadandParsePriceFileintoArrayList {
 
 		     		    String newLine = System.getProperty("line.separator");
 
-		     		    f14.write("Date" + "," + "Open" + "," + "High"  + "," + "Low" + "," + "Close" + "," + "PL Dot"  + "," + "Red Bird" + "," + "MCL" + "," + "Type of Trading" + "," + "Direction" + newLine);
+		     		    f14.write("Date" + "," + "Open" + "," + "High"  + "," + "Low" + "," + "Close" + "," + "PL Dot"  + "," + "Red Bird" + "," + "MCL" + "," + "Type of Trading" + "," + "Direction" + "," + "Cong High" + "," + "Cong Low" + "Last Block" + newLine);
 		     		    
 		     		    for(row=0;row<size;row++)
 		     		       {
@@ -439,7 +450,7 @@ public class ReadandParsePriceFileintoArrayList {
 		     		    	{
 		     		    		f13.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + newLine);
 		     		    	}
-		    		    	f14.write(priceDatePLPal + "," + dec.format(PriceData_T1.openPrice) + "," + dec.format(PriceData_T1.highPrice)  + "," + dec.format(PriceData_T1.lowPrice) + "," + dec.format(PriceData_T1.closePrice) + "," + dec.format(PriceData_T1.plDot)  + "," + dec.format(PriceData_T1.redBirdDot) + "," + dec.format(PriceData_T1.mcLine) + "," + PriceData_T1.typeOfTrading + "," + PriceData_T1.typeOfTradingDirection + newLine);
+		    		    	f14.write(priceDatePLPal + "," + dec.format(PriceData_T1.openPrice) + "," + dec.format(PriceData_T1.highPrice)  + "," + dec.format(PriceData_T1.lowPrice) + "," + dec.format(PriceData_T1.closePrice) + "," + dec.format(PriceData_T1.plDot)  + "," + dec.format(PriceData_T1.redBirdDot) + "," + dec.format(PriceData_T1.mcLine) + "," + PriceData_T1.typeOfTrading + "," + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.congestionParameterHigh +"," + PriceData_T1.congestionParameterLow + "," + PriceData_T1.lastBlockToForm + newLine);
 		    		    	
 		    		    	if ((PriceData_T1.typeOfTrading == "CExit") && (PriceData_T1.typeOfTradingDirection == "Down"))
 		     		    	{
