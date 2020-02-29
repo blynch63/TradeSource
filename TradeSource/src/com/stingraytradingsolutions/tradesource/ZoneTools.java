@@ -11,6 +11,7 @@ public class ZoneTools
 	public String zoneToolLabel;
 	public double zoneToolValue;
 	public boolean zoneToolUsed = true;
+	public String zoneToolRule = "Rule 1";																		// 11052018 Added zone tool rule to closs						
 
 //***************************************************************************************************************************************
 //* 
@@ -22,6 +23,7 @@ public ZoneTools(String zoneToolLabel, Double zoneToolValue)
 	this.zoneToolLabel = zoneToolLabel;
 	this.zoneToolValue = zoneToolValue;
 	this.zoneToolUsed = true;
+	this.zoneToolRule = zoneToolRule;
 }
 
 //***************************************************************************************************************************************
@@ -34,6 +36,7 @@ public ZoneTools(String zoneToolLabel, Double zoneToolValue, Boolean zoneToolUse
 	this.zoneToolLabel = zoneToolLabel;
 	this.zoneToolValue = zoneToolValue;
 	this.zoneToolUsed = zoneToolUsed;
+	this.zoneToolRule = zoneToolRule;
 }
 //***************************************************************************************************************************************
 //* 
@@ -47,6 +50,7 @@ public ZoneTools(ZoneTools ZT)
 	this.zoneToolLabel = ZT.zoneToolLabel;
 	this.zoneToolValue = ZT.zoneToolValue;
 	this.zoneToolUsed = ZT.zoneToolUsed;
+	this.zoneToolRule = ZT.zoneToolRule;
 }
 
 public double getZoneToolValue() {
@@ -64,5 +68,10 @@ public boolean isZoneToolUsed() {
 public void setZoneToolUsed(boolean zoneToolUsed) {
 	this.zoneToolUsed = zoneToolUsed;
 }	
-
+public void setZoneToolRule(String zoneToolRule) {													// 20181105 Added Zone Rule to Zone Tools Array
+	if (this.zoneToolRule == "Rule 1")																// 20181105 Added Zone Rule to Zone Tools Array
+	{																								// 20181105 Added Zone Rule to Zone Tools Array
+		this.zoneToolRule = zoneToolRule;															// 20181105 Added Zone Rule to Zone Tools Array
+	}																								// 20181105 Added Zone Rule to Zone Tools Array
+}	
 }

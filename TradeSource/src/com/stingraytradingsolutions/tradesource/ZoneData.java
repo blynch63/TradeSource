@@ -138,6 +138,7 @@ public class ZoneData extends PriceData{
 			if ((Double.isNaN(ZoneRulesTools.zoneToolValue) == true) || ((ZoneRulesTools.zoneToolValue) == 0)) 
 			{
 				ZoneRulesTools.zoneToolUsed = false;
+				ZoneRulesTools.zoneToolRule = "Rule 1";												// 20181105 Add new field for rule used  
 				alZoneRules.set(row, ZoneRulesTools);
 				toolsUsedinZone--;	
 			}
@@ -189,6 +190,7 @@ public class ZoneData extends PriceData{
 						if ((ZoneRulesTools.zoneToolValue > T.priceBarNearCloseLow) && (ZoneRulesTools.zoneToolValue < T.priceBarNearCloseHigh))
 						{
 							ZoneRulesTools.zoneToolUsed = false;
+							ZoneRulesTools.zoneToolRule = "Rule 2";									// 20181105 Add new field for rule used  
 							alZoneRules.set(row, ZoneRulesTools);
 							toolsUsedinZone--;	
 						}
@@ -228,11 +230,13 @@ public class ZoneData extends PriceData{
 					
 					//* Update the tools and values array lists with the expanded zone values (tools and values
 					String name = ZoneRulesTools.zoneToolLabel;
-					ZoneRulesTools.setZoneToolValue(SingleToolZone.getExpandedHighValue());						//* update expanded tool value(high) in object
-					alZoneRules.set(row, ZoneRulesTools);														//* update expanded tool value(high) in tool array list
+					ZoneRulesTools.setZoneToolValue(SingleToolZone.getExpandedHighValue());							//* update expanded tool value(high) in object
+					ZoneRulesTools.zoneToolRule = "Rule 3";															// 20181105 Add new field for rule used  
+					alZoneRules.set(row, ZoneRulesTools);															//* update expanded tool value(high) in tool array list
 					//*alValues.set(row, SingleToolZone.getExpandedHighValue());									//* update expanded tool value(high) in values array list
-					ZoneTools ZoneRulesTools2 = new ZoneTools(name, SingleToolZone.getExpandedLowValue(), true);//* create new object for expanded tool value(low)
-					alZoneRules.add(ZoneRulesTools2);															//* create new entry for expanded tool value(low) in tool array list			
+					ZoneTools ZoneRulesTools2 = new ZoneTools(name, SingleToolZone.getExpandedLowValue(), true);	//* create new object for expanded tool value(low)
+					ZoneRulesTools2.zoneToolRule = "Rule 3";														// 20181105 Add new field for rule used  
+					alZoneRules.add(ZoneRulesTools2);																//* create new entry for expanded tool value(low) in tool array list			
 					//*alValues.add(SingleToolZone.getExpandedLowValue());											//* create new entry for expanded tool value(low) in values array list
 					size ++;
 					break;			
@@ -260,6 +264,7 @@ public class ZoneData extends PriceData{
 						{
 							double highToolValue = ZoneRulesTools.zoneToolValue + zoneVariance;
 							ZoneRulesTools.setZoneToolValue(highToolValue);
+							ZoneRulesTools.zoneToolRule = "Rule 4";												// 20181105 Add new field for rule used  
 							alZoneRules.set(row, ZoneRulesTools);
 						}
 						else
@@ -268,6 +273,7 @@ public class ZoneData extends PriceData{
 							{
 								double lowToolValue = ZoneRulesTools.zoneToolValue - zoneVariance;
 								ZoneRulesTools.setZoneToolValue(lowToolValue);
+								ZoneRulesTools.zoneToolRule = "Rule 4";												// 20181105 Add new field for rule used  
 								alZoneRules.set(row, ZoneRulesTools);
 							}
 						}
@@ -342,6 +348,7 @@ public class ZoneData extends PriceData{
 							if (ZoneRulesTools.zoneToolValue != highestValue)
 							{
 								ZoneRulesTools.setZoneToolUsed(false);
+								ZoneRulesTools.setZoneToolRule("Rule 5");							// 20181105  Add new field for rule used
 								alZoneRules.set(row, ZoneRulesTools);
 							}
 						
@@ -355,6 +362,7 @@ public class ZoneData extends PriceData{
 							if (ZoneRulesTools.zoneToolValue != lowestValue)
 							{
 								ZoneRulesTools.setZoneToolUsed(false);
+								ZoneRulesTools.setZoneToolRule("Rule 5");							// 20181105  Add new field for rule used
 								alZoneRules.set(row, ZoneRulesTools);
 							}
 						
@@ -375,9 +383,11 @@ public class ZoneData extends PriceData{
 							//* Update the tools and values array lists with the expanded zone values (tools and values
 							String name = ZoneRulesTools.zoneToolLabel;
 							ZoneRulesTools.setZoneToolValue(SingleToolZone.getExpandedHighValue());						//* update expanded tool value(high) in object
+							ZoneRulesTools.setZoneToolRule("Rule 5");													// 20181105  Add new field for rule used
 							alZoneRules.set(row, ZoneRulesTools);														//* update expanded tool value(high) in tool array list
 							//*alValues.set(row, SingleToolZone.getExpandedHighValue());									//* update expanded tool value(high) in values array list
 							ZoneTools ZoneRulesTools2 = new ZoneTools(name, SingleToolZone.getExpandedLowValue(), true);//* create new object for expanded tool value(low)
+							ZoneRulesTools2.setZoneToolRule("Rule 5");													// 20181105  Add new field for rule used
 							alZoneRules.add(ZoneRulesTools2);															//* create new entry for expanded tool value(low) in tool array list			
 							//*alValues.add(SingleToolZone.getExpandedLowValue());											//* create new entry for expanded tool value(low) in values array list
 							size ++;
@@ -479,6 +489,7 @@ public class ZoneData extends PriceData{
 							if (ZoneRulesTools.zoneToolValue == zoneCToolValueClosestToPrices)
 							{
 								ZoneRulesTools.setZoneToolUsed(false);
+								ZoneRulesTools.setZoneToolRule("Rule 5A");							// 20181105  Add new field for rule used
 								alZoneRules.set(row, ZoneRulesTools);
 							}
 						
@@ -492,6 +503,7 @@ public class ZoneData extends PriceData{
 							if (ZoneRulesTools.zoneToolValue == zoneBToolValueClosestToPrices)
 							{
 								ZoneRulesTools.setZoneToolUsed(false);
+								ZoneRulesTools.setZoneToolRule("Rule 5A");							// 20181105  Add new field for rule used
 								alZoneRules.set(row, ZoneRulesTools);
 							}
 						
@@ -515,11 +527,13 @@ public class ZoneData extends PriceData{
 							
 							//* Update the tools and values array lists with the expanded zone values (tools and values
 							String name = ZoneRulesTools.zoneToolLabel;
-							ZoneRulesTools.setZoneToolValue(SingleToolZone.getExpandedHighValue());						//* update expanded tool value(high) in object
-							alZoneRules.set(row, ZoneRulesTools);														//* update expanded tool value(high) in tool array list
+							ZoneRulesTools.setZoneToolValue(SingleToolZone.getExpandedHighValue());							//* update expanded tool value(high) in object
+							ZoneRulesTools.setZoneToolRule("Rule 5A");														// 20181105  Add new field for rule used
+							alZoneRules.set(row, ZoneRulesTools);															//* update expanded tool value(high) in tool array list
 							//*alValues.set(row, SingleToolZone.getExpandedHighValue());									//* update expanded tool value(high) in values array list
-							ZoneTools ZoneRulesTools2 = new ZoneTools(name, SingleToolZone.getExpandedLowValue(), true);//* create new object for expanded tool value(low)
-							alZoneRules.add(ZoneRulesTools2);															//* create new entry for expanded tool value(low) in tool array list			
+							ZoneTools ZoneRulesTools2 = new ZoneTools(name, SingleToolZone.getExpandedLowValue(), true);	//* create new object for expanded tool value(low)
+							ZoneRulesTools2.setZoneToolRule("Rule 5A");														// 20181105  Add new field for rule used
+							alZoneRules.add(ZoneRulesTools2);																//* create new entry for expanded tool value(low) in tool array list			
 							//*alValues.add(SingleToolZone.getExpandedLowValue());											//* create new entry for expanded tool value(low) in values array list
 							size ++;
 							break;
@@ -591,6 +605,7 @@ public class ZoneData extends PriceData{
 					{	
 						T.alZoneBTools.add(ZoneRule6Tools);
 						ZoneRule6Tools.setZoneToolUsed(false);
+						ZoneRule6Tools.setZoneToolRule("Rule 6");							// 20181105  Add new field for rule used
 						alZoneRule6Tools.set(row, ZoneRule6Tools);
 						T.alZoneATools.set(row, ZoneRule6Tools);
 						zoneAUpdated = true;
@@ -672,6 +687,7 @@ public class ZoneData extends PriceData{
 					{	
 						T.alZoneCTools.add(ZoneRule6Tools);
 						ZoneRule6Tools.setZoneToolUsed(false);
+						ZoneRule6Tools.setZoneToolRule("Rule 6");							// 20181105  Add new field for zone rule used 
 						alZoneRule6Tools.set(row, ZoneRule6Tools);
 						T.alZoneDTools.set(row, ZoneRule6Tools);
 						zoneDUpdated = true;
@@ -1699,12 +1715,12 @@ public class ZoneData extends PriceData{
 			alZoneTools.clear();
 			if (T.$5_2_Up_Short)
 			{
-				ZoneTools ZoneToolsValues2 = new ZoneTools("5 2 Up Short",T.$5_2_Up);
+				ZoneTools ZoneToolsValues2 = new ZoneTools("5/2 Up Short",T.$5_2_Up);
 				alZoneTools.add(ZoneToolsValues2);					
 			}
 			if (T.$5_2_Up_Regular)
 			{
-				ZoneTools ZoneToolsValues3 = new ZoneTools("5 2 Up Regular",T.$5_2_Up);
+				ZoneTools ZoneToolsValues3 = new ZoneTools("5/2 Up Regular",T.$5_2_Up);
 				alZoneTools.add(ZoneToolsValues3);					
 			}
 			
@@ -1786,12 +1802,12 @@ public class ZoneData extends PriceData{
 			alZoneTools.clear();
 			if (T.$5_2_Up_Short)
 			{
-				ZoneTools ZoneToolsValues2 = new ZoneTools("5 2 Up Short",T.$5_2_Up);
+				ZoneTools ZoneToolsValues2 = new ZoneTools("5/2 Up Short",T.$5_2_Up);
 				alZoneTools.add(ZoneToolsValues2);					
 			}
 			if (T.$5_2_Up_Regular)
 			{
-				ZoneTools ZoneToolsValues3 = new ZoneTools("5 2 Up Regular",T.$5_2_Up);
+				ZoneTools ZoneToolsValues3 = new ZoneTools("5/2 Up Regular",T.$5_2_Up);
 				alZoneTools.add(ZoneToolsValues3);					
 			}
 			

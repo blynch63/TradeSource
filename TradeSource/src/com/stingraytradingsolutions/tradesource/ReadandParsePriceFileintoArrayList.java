@@ -20,8 +20,10 @@ public class ReadandParsePriceFileintoArrayList {
 	public static void main(String[] args) {
 		currentTime();  
 		// The name of the file to open.
-				String fileName = "OIL.CSV";
+				String fileName = "OIL.CSV";		
+				//String fileName = "ES_Monthly_Prices.CSV";
 				String directoryName = "/Users/blynch63/Data/";
+				//String directoryName = "/Users/blynch63/Data/Greer/";
 		        String fileDirName =  directoryName + fileName;
 		        String csvSplitBy = ",";
 		        
@@ -339,50 +341,73 @@ public class ReadandParsePriceFileintoArrayList {
 		                // Write a file
 		     		    //********************************************************************************
 		            	DecimalFormat dec = new DecimalFormat("#0.00000"); 
+		            	DecimalFormat Greerdec = new DecimalFormat("#0.00"); 
 		            	int size=al.size();
-		            	FileWriter f0 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRIUP.CSV");
-		            	FileWriter f1 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRIDN.CSV");
-		            	FileWriter f2 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRAUP.CSV");
-		            	FileWriter f3 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRADN.CSV");
-		            	FileWriter f4 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRSUP.CSV");
-		            	FileWriter f5 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRSDN.CSV");
-		            	FileWriter f6 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CACTDN.CSV");
-		            	FileWriter f7 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CACTUP.CSV");
-		            	FileWriter f8 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CACT2DN.CSV");
-		            	FileWriter f9 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CACT2UP.CSV");
-		            	FileWriter f10 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENTDN.CSV");
-		            	FileWriter f11 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENTUP.CSV");
-		            	FileWriter f12 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENT2DN.CSV");
-		            	FileWriter f13 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENT2UP.CSV");
-		            	FileWriter f14 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TYPESOFTRADING.CSV");
-		            	FileWriter f15 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXITDN.CSV");
-		            	FileWriter f16 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXITUP.CSV");
-		            	FileWriter f17 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXIT2DN.CSV");
-		            	FileWriter f18 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXIT2UP.CSV");
+		            	//FileWriter f0 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_pldot_and_1_1s.CSV");
+		            	//FileWriter f1 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_5_1s.CSV");
+		            	//FileWriter f2 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_5_2s.CSV");
+		            	//FileWriter f3 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_5_3s.CSV");
+		            	//FileWriter f4 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_5_9s.CSV");
+		            	//FileWriter f5 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_6_7s.CSV");
+		            	//FileWriter f6 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_OHLC.CSV");
+		            	//FileWriter f7 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_MCL.CSV");
+		            	//FileWriter f8 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_6_5s.CSV");
+		            	//FileWriter f9 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_6_6s.CSV");
+		            	//FileWriter f10 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_6_1s.CSV");
+		            	//FileWriter f11 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_CENTUP.CSV");
+		            	//FileWriter f12 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_CENT2DN.CSV");
+		            	//FileWriter f13 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_CENT2UP.CSV");
+		            	//FileWriter f14 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_TYPESOFTRADING.CSV");
+		            	//FileWriter f15 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_CEXITDN.CSV");
+		            	//FileWriter f16 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_CEXITUP.CSV");
+		            	//FileWriter f17 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_CEXIT2DN.CSV");
+		            	//FileWriter f18 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_CEXIT2UP.CSV");
+		            	
+		            	//FileWriter f0 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRIUP.CSV");
+		            	//FileWriter f1 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRIDN.CSV");
+		            	//FileWriter f2 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRAUP.CSV");
+		            	//FileWriter f3 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRADN.CSV");
+		            	//FileWriter f4 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRSUP.CSV");
+		            	//FileWriter f5 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRSDN.CSV");
+		            	//FileWriter f6 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CACTDN.CSV");
+		            	//FileWriter f7 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CACTUP.CSV");
+		            	//FileWriter f8 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CACT2DN.CSV");
+		            	//FileWriter f9 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CACT2UP.CSV");
+		            	//FileWriter f10 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENTDN.CSV");
+		            	//FileWriter f11 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENTUP.CSV");
+		            	//FileWriter f12 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENT2DN.CSV");
+		            	//FileWriter f13 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENT2UP.CSV");
+		            	//FileWriter f14 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TYPESOFTRADING.CSV");
+		            	//FileWriter f15 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXITDN.CSV");
+		            	//FileWriter f16 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXITUP.CSV");
+		            	//FileWriter f17 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXIT2DN.CSV");
+		            	//FileWriter f18 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXIT2UP.CSV");
+		            	//FileWriter f19 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRAUP_Zones.CSV");
 		            	
 
 
 		     		    String newLine = System.getProperty("line.separator");
 
-		     		    f14.write("Date" + "," + "Open" + "," + "High"  + "," + "Low" + "," + "Close" + "," + "PL Dot"  + "," + "Red Bird" + "," + "MCL" + "," + "Type of Trading" + "," + "Direction" + "," + "Cong High" + "," + "Cong Low" + "Last Block" + newLine);
+		     		    //f14.write("Date" + "," + "Open" + "," + "High"  + "," + "Low" + "," + "Close" + "," + "PL Dot"  + "," + "Red Bird" + "," + "MCL" + "," + "Type of Trading" + "," + "Direction" + "," + "Cong High" + "," + "Cong Low" + "Last Block" + newLine);
 		     		    
 		     		    for(row=0;row<size;row++)
 		     		       {
 		     		    	//Get a row from the array list
 		     		    	ZoneData PriceData_T1 = new ZoneData(al.get(row));   
 
-		     		    	//Format date to match PLPal format of MM/DD/YYY
+		     		    	//Format date to match PLPal format of MM/DD/YYYY
 		     		    	String year1 = PriceData_T1.priceDate.substring(0,4); 
 		     		    	String month1 = PriceData_T1.priceDate.substring(4,6); 
 		     		    	String day1 = PriceData_T1.priceDate.substring(6,8); 
 		     		    	String priceDatePLPal = (month1 + "/" + day1 + "/" + year1 + ":24:00");
+		     		    	String priceDateGreer = (year1 + month1 + day1);		     		    	
 		     		    	//System.out.println(" Trade Date: " + PriceData_T1.priceDate);
 		     		    	//System.out.println("plPal Format: " + priceDatePLPal+ PriceData_T1.typeOfTrading);
 		     		    	
 		     		    	//Write file with select fields
-		     		    	if ((PriceData_T1.typeOfTrading == "TRI") && (PriceData_T1.typeOfTradingDirection == "Up"))
-		     		    	{
-		     		    		f0.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + newLine);
+		     		    	//if ((PriceData_T1.typeOfTrading == "TRI") && (PriceData_T1.typeOfTradingDirection == "Up"))
+		     		    	//{
+		     		    		//f0.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + newLine);
 		     		    		//f0.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + dec.format(PriceData_T1.zoneALow)  + "," + dec.format(PriceData_T1.zoneAHigh) +  newLine);
 		     		    		//f0.write(priceDatePLPal + "," + dec.format(PriceData_T1.$6_1_Up) + "," + dec.format(PriceData_T1.$6_1_Down) + "," + dec.format(PriceData_T1.$6_5_Up) + "," + dec.format(PriceData_T1.$6_5_Down) + newLine);
 		     		    		//f0.write(priceDatePLPal + ","  + dec.format(PriceData_T1.$6_7_Up) + "," + dec.format(PriceData_T1.$6_7_Down) +  newLine);	
@@ -397,8 +422,9 @@ public class ReadandParsePriceFileintoArrayList {
 		     		    		//f0.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + dec.format(PriceData_T1.zoneBLow)  + "," + dec.format(PriceData_T1.zoneBHigh) +  newLine);
 		     		    		//f0.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + dec.format(PriceData_T1.zoneCLow)  + "," + dec.format(PriceData_T1.zoneCHigh) +  newLine);
 		     		    		//f0.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + dec.format(PriceData_T1.zoneDLow)  + "," + dec.format(PriceData_T1.zoneDHigh) +  newLine);
-		     		    	}
-		    		    	if ((PriceData_T1.typeOfTrading == "TRI") && (PriceData_T1.typeOfTradingDirection == "Down"))
+		     		    	//}
+
+/*		    		    	if ((PriceData_T1.typeOfTrading == "TRI") && (PriceData_T1.typeOfTradingDirection == "Down"))
 		     		    	{
 		     		    		f1.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + newLine);
 		     		    	}
@@ -450,6 +476,7 @@ public class ReadandParsePriceFileintoArrayList {
 		     		    	{
 		     		    		f13.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + newLine);
 		     		    	}
+		    		    	//f14.write(priceDatePLPal + "," + dec.format(PriceData_T1.openPrice) + "," + dec.format(PriceData_T1.highPrice)  + "," + dec.format(PriceData_T1.lowPrice) + "," + dec.format(PriceData_T1.closePrice) + "," + dec.format(PriceData_T1.plDot)  + "," + dec.format(PriceData_T1.redBirdDot) + "," + dec.format(PriceData_T1.mcLine) + "," + PriceData_T1.typeOfTrading + "," + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.congestionParameterHigh +"," + PriceData_T1.congestionParameterLow + "," + PriceData_T1.lastBlockToForm + newLine);
 		    		    	f14.write(priceDatePLPal + "," + dec.format(PriceData_T1.openPrice) + "," + dec.format(PriceData_T1.highPrice)  + "," + dec.format(PriceData_T1.lowPrice) + "," + dec.format(PriceData_T1.closePrice) + "," + dec.format(PriceData_T1.plDot)  + "," + dec.format(PriceData_T1.redBirdDot) + "," + dec.format(PriceData_T1.mcLine) + "," + PriceData_T1.typeOfTrading + "," + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.congestionParameterHigh +"," + PriceData_T1.congestionParameterLow + "," + PriceData_T1.lastBlockToForm + newLine);
 		    		    	
 		    		    	if ((PriceData_T1.typeOfTrading == "CExit") && (PriceData_T1.typeOfTradingDirection == "Down"))
@@ -468,6 +495,12 @@ public class ReadandParsePriceFileintoArrayList {
 		     		    	{
 		     		    		f18.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + newLine);
 		     		    	}
+*/
+		     		    	//if ((PriceData_T1.typeOfTrading == "TRA") && (PriceData_T1.typeOfTradingDirection == "Up"))
+		     		    	//{
+			    		    	//f19.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.zoneALow  + "," + PriceData_T1.zoneAHigh + "," + PriceData_T1.zoneBLow  + "," + PriceData_T1.zoneBHigh + "," + PriceData_T1.zoneCLow  + "," + PriceData_T1.zoneCHigh + "," + PriceData_T1.zoneDLow  + "," + PriceData_T1.zoneDHigh +  newLine);
+		     		    	//}
+		    		    	//f0.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.zoneALow  + "," + PriceData_T1.zoneAHigh + "," + PriceData_T1.zoneBLow  + "," + PriceData_T1.zoneBHigh + "," + PriceData_T1.zoneCLow  + "," + PriceData_T1.zoneCHigh + "," + PriceData_T1.zoneDLow  + "," + PriceData_T1.zoneDHigh +  newLine);
 		    		    	//f0.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.zoneBLow  + "," + PriceData_T1.zoneBHigh +  newLine);
 		     		    	//f0.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.zoneCLow  + "," + PriceData_T1.zoneCHigh +  newLine);
 		     		    	//f0.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.zoneDLow  + "," + PriceData_T1.zoneDHigh +  newLine);
@@ -486,26 +519,46 @@ public class ReadandParsePriceFileintoArrayList {
 		     		    	//f0.write(priceDatePLPal + "," + PriceData_T1.mcLine + newLine);
 		     		    	//f0.write(priceDatePLPal + "," + dec.format(PriceData_T1.openPrice) + "," + dec.format(PriceData_T1.highPrice)  + "," + dec.format(PriceData_T1.lowPrice) + "," + dec.format(PriceData_T1.closePrice) + "," + PriceData_T1.plDot  + "," + PriceData_T1.mcLine + "," + PriceData_T1.redBirdDot + "," + PriceData_T1.$1_1_Dot + "," + PriceData_T1.$1_1_Low + "," + PriceData_T1.$1_1_High + newLine);
 
+		    		    	//
+		    		    	// WRITE GREER FILES
+		    		    	//
+	     		    		
+		     		    	//f6.write(priceDateGreer + "," + Greerdec.format(PriceData_T1.openPrice) + "," + Greerdec.format(PriceData_T1.highPrice)  + "," + Greerdec.format(PriceData_T1.lowPrice) + "," + Greerdec.format(PriceData_T1.closePrice)  + newLine);
+		     		    	//f5.write(priceDateGreer + ","  + Greerdec.format(PriceData_T1.$6_7_Up) + "," + Greerdec.format(PriceData_T1.$6_7_Down) +  newLine);	
+	     		    		//f4.write(priceDateGreer + "," + Greerdec.format(PriceData_T1.$5_9_Up)  + "," + Greerdec.format(PriceData_T1.$5_9_Down) + newLine);	
+	     		    		//f4.write(priceDateGreer + "," + Greerdec.format(PriceData_T1.$5_9_Up)  + "," + Greerdec.format(PriceData_T1.$5_9_Down) + "," + Greerdec.format(PriceData_T1.$5_9_Up_Ext)  + "," + Greerdec.format(PriceData_T1.$5_9_Down_Ext) + newLine);
+	     		    		//f3.write(priceDateGreer + "," + Greerdec.format(PriceData_T1.$5_3_Up) + "," + Greerdec.format(PriceData_T1.$5_3_Down) + newLine);
+	     		    		//f2.write(priceDateGreer + "," + Greerdec.format(PriceData_T1.$5_2_Up) + "," + Greerdec.format(PriceData_T1.$5_2_Down) + newLine);
+	     		    		//f2.write(priceDateGreer + "," + Greerdec.format(PriceData_T1.$5_2_Up) + "," + Greerdec.format(PriceData_T1.$5_2_Down) + "," + Greerdec.format(PriceData_T1.$5_2_Up_Ext) + "," + Greerdec.format(PriceData_T1.$5_2_Down_Ext) + newLine);
+	     		    		//f1.write(priceDateGreer + "," + Greerdec.format(PriceData_T1.$5_1_Up) + "," + Greerdec.format(PriceData_T1.$5_1_Down) + newLine);	
+	     		    		//f0.write(priceDateGreer + "," + Greerdec.format(PriceData_T1.plDot) + "," + Greerdec.format(PriceData_T1.$1_1_Low) + "," + Greerdec.format(PriceData_T1.$1_1_High) + newLine);	
+	     		    		//f7.write(priceDateGreer + "," + Greerdec.format(PriceData_T1.mcLine) + newLine);	
+		     		    	//f8.write(priceDateGreer + ","  + Greerdec.format(PriceData_T1.$6_5_Up) + "," + Greerdec.format(PriceData_T1.$6_5_Down) +  newLine);	
+		     		    	//f9.write(priceDateGreer + ","  + Greerdec.format(PriceData_T1.$6_6_Up) + "," + Greerdec.format(PriceData_T1.$6_6_Down) +  newLine);	
+		     		    	//f10.write(priceDateGreer + ","  + Greerdec.format(PriceData_T1.$6_1_Up) + "," + Greerdec.format(PriceData_T1.$6_1_Down) +  newLine);	
+
+		    		    	
 		     		       }
-		     		       f0.close();
-		     		       f1.close();
-		     		       f2.close();
-		     		       f3.close();
-		     		       f4.close();
-		     		       f5.close();
-		     		       f6.close();
-		     		       f7.close();
-		     		       f8.close();
-		     		       f9.close();
-		     		       f10.close();
-		     		       f11.close();
-		     		   	   f12.close();
-		     		   	   f13.close();
-		     		   	   f14.close();
-		     		   	   f15.close();
-		     		   	   f16.close();
-		     		   	   f17.close();
-		     		   	   f18.close();
+		     		       //f0.close();
+		     		       //f1.close();
+		     		       //f2.close();
+		     		       //f3.close();
+		     		       //f4.close();
+		     		       //f5.close();
+		     		       //f6.close();
+		     		       //f7.close();
+		     		       //f8.close();
+		     		       //f9.close();
+		     		       //f10.close();
+		     		       //f11.close();
+		     		   	   //f12.close();
+		     		   	   //f13.close();
+		     		   	   //f14.close();
+		     		   	   //f15.close();
+		     		   	   //f16.close();
+		     		   	   //f17.close();
+		     		   	   //f18.close();
+		     		       //f19.close();
 		     		     
 		     		    //********* end of file write  *****************
 		   				currentTime();  
