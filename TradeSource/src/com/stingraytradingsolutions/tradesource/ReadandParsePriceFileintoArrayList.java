@@ -377,7 +377,7 @@ public class ReadandParsePriceFileintoArrayList {
 		            	//FileWriter f11 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENTUP.CSV");
 		            	//FileWriter f12 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENT2DN.CSV");
 		            	//FileWriter f13 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CENT2UP.CSV");
-		            	//FileWriter f14 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TYPESOFTRADING.CSV");
+		            	FileWriter f14 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TYPESOFTRADING.CSV");
 		            	//FileWriter f15 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXITDN.CSV");
 		            	//FileWriter f16 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXITUP.CSV");
 		            	//FileWriter f17 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_CEXIT2DN.CSV");
@@ -388,8 +388,7 @@ public class ReadandParsePriceFileintoArrayList {
 
 		     		    String newLine = System.getProperty("line.separator");
 
-		     		    //f14.write("Date" + "," + "Open" + "," + "High"  + "," + "Low" + "," + "Close" + "," + "PL Dot"  + "," + "Red Bird" + "," + "MCL" + "," + "Type of Trading" + "," + "Direction" + "," + "Cong High" + "," + "Cong Low" + "Last Block" + newLine);
-		     		    
+		     		    f14.write("Date" + "," + "Open" + "," + "High"  + "," + "Low" + "," + "Close" + "," + "ToT" + "," + "Type of Trading" + "," + "Direction" + "," + "Cong High" + "," + "Cong Low" + "," + "Last Block" + "," + "Down Side Block" + "," + "Down Side Block Value" + "," + "Top Side Block" + "," + "Top Side Block Value" + newLine);
 		     		    for(row=0;row<size;row++)
 		     		       {
 		     		    	//Get a row from the array list
@@ -477,7 +476,7 @@ public class ReadandParsePriceFileintoArrayList {
 		     		    		f13.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + newLine);
 		     		    	}
 		    		    	//f14.write(priceDatePLPal + "," + dec.format(PriceData_T1.openPrice) + "," + dec.format(PriceData_T1.highPrice)  + "," + dec.format(PriceData_T1.lowPrice) + "," + dec.format(PriceData_T1.closePrice) + "," + dec.format(PriceData_T1.plDot)  + "," + dec.format(PriceData_T1.redBirdDot) + "," + dec.format(PriceData_T1.mcLine) + "," + PriceData_T1.typeOfTrading + "," + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.congestionParameterHigh +"," + PriceData_T1.congestionParameterLow + "," + PriceData_T1.lastBlockToForm + newLine);
-		    		    	f14.write(priceDatePLPal + "," + dec.format(PriceData_T1.openPrice) + "," + dec.format(PriceData_T1.highPrice)  + "," + dec.format(PriceData_T1.lowPrice) + "," + dec.format(PriceData_T1.closePrice) + "," + dec.format(PriceData_T1.plDot)  + "," + dec.format(PriceData_T1.redBirdDot) + "," + dec.format(PriceData_T1.mcLine) + "," + PriceData_T1.typeOfTrading + "," + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.congestionParameterHigh +"," + PriceData_T1.congestionParameterLow + "," + PriceData_T1.lastBlockToForm + newLine);
+		    		    	
 		    		    	
 		    		    	if ((PriceData_T1.typeOfTrading == "CExit") && (PriceData_T1.typeOfTradingDirection == "Down"))
 		     		    	{
@@ -496,6 +495,7 @@ public class ReadandParsePriceFileintoArrayList {
 		     		    		f18.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + newLine);
 		     		    	}
 */
+		     		    	f14.write(priceDatePLPal + "," + dec.format(PriceData_T1.openPrice) + "," + dec.format(PriceData_T1.highPrice)  + "," + dec.format(PriceData_T1.lowPrice) + "," + dec.format(PriceData_T1.closePrice) + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.typeOfTrading + "," + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.congestionParameterHigh +"," + PriceData_T1.congestionParameterLow + "," + PriceData_T1.lastBlockToForm + "," + PriceData_T1.downSideBlockLevel + "," + PriceData_T1.downSideBlockLevelValue + "," + PriceData_T1.topSideBlockLevel + "," + PriceData_T1.topSideBlockLevelValue + newLine);
 		     		    	//if ((PriceData_T1.typeOfTrading == "TRA") && (PriceData_T1.typeOfTradingDirection == "Up"))
 		     		    	//{
 			    		    	//f19.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.zoneALow  + "," + PriceData_T1.zoneAHigh + "," + PriceData_T1.zoneBLow  + "," + PriceData_T1.zoneBHigh + "," + PriceData_T1.zoneCLow  + "," + PriceData_T1.zoneCHigh + "," + PriceData_T1.zoneDLow  + "," + PriceData_T1.zoneDHigh +  newLine);
@@ -553,7 +553,7 @@ public class ReadandParsePriceFileintoArrayList {
 		     		       //f11.close();
 		     		   	   //f12.close();
 		     		   	   //f13.close();
-		     		   	   //f14.close();
+		     		   	   f14.close();
 		     		   	   //f15.close();
 		     		   	   //f16.close();
 		     		   	   //f17.close();

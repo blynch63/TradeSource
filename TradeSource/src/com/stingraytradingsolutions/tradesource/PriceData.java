@@ -26,7 +26,7 @@ public class PriceData
 		public double priceAvg;
 		public double distanceBetweenPlDots;
 		public double mcLine;
-		// Set in PL Geomerty
+		// Set in PL Geometry
 		public double $1_1_Dot = Double.NaN;
 		public double $1_1_High = Double.NaN;
 		public double $1_1_Low = Double.NaN;
@@ -1234,38 +1234,57 @@ public class PriceData
 	    	
 	    	//***************************************************************************************************************************************
 			//Determine block level
+	    	//  Logic:
+	    	//
+	    	//		Check for Congestion Action Down or Exit Down that switches to Congestion Action Up
+	    	//			Set Block Level and value
+	    	//		Check for Congestion Action Up or Exit Up  that switches to Congestion Action Down
+	    	//			Set Block Level and value
+	    	//		If Congestion Entrance Down
+			//			Set Block Level and value
+	    	//		Else
+	    	//			If Congestion Entrance Up
+	    	//				Set Block Level and value
+	    	//			Else
+	    	//				Trend Run intact
+	    	//				Set Block levels and values to their defaults
+	    	//								
 	    	//***************************************************************************************************************************************
-	    	if ((T1.congestionEntranceDown) && (T.closeAbovePLDot));
-				{
+	    	if (((T1.congestionEntranceDown = true) || (T1.congestionActionDown = true) || (T1.congestionExitDown = true)) &&  (T.closeAbovePLDot = true));
+	    		{
 				T.downSideBlockLevel = false;
-		    	T.topSideBlockLevel = true;
-		    	T.topSideBlockLevelValue = T.highPrice;
-		    	T.lastBlockToForm = T.highPrice;													//20181104  Added block level and congestion parameter functionality
+				T.topSideBlockLevel = true;
+				T.downSideBlockLevelValue = 0;
+				T.topSideBlockLevelValue = T.highPrice;
+				T.lastBlockToForm = T.highPrice;													//20181104  Added block level and congestion parameter functionality
 				}
 			
-	    	if ((T1.congestionEntranceUp) && (T.closeBelowPLDot));
-				{
+	    	if (((T1.congestionEntranceUp = true) || (T1.congestionActionUp = true) || (T1.congestionExitUp = true)) && (T.closeBelowPLDot = true));
+	    		{
 				T.downSideBlockLevel = true;
-		    	T.topSideBlockLevel = false;
-		    	T.topSideBlockLevelValue = T.lowPrice;
-		    	T.lastBlockToForm = T.lowPrice;														//20181104  Added block level and congestion parameter functionality
+				T.topSideBlockLevel = false;
+				T.downSideBlockLevelValue = T.lowPrice;
+				T.topSideBlockLevelValue = 0;
+				T.lastBlockToForm = T.lowPrice;														//20181104  Added block level and congestion parameter functionality
 				}
 				
-	    	if ((! T.trendRunUp) && (T1.trendRunUp))
+	    	if ((T1.trendRunUp) && (! T.trendRunUp))
 	    		{
 	    		T.downSideBlockLevel = true;
 	    		T.topSideBlockLevel = false;
 	    		T.downSideBlockLevelValue = T.lowPrice;
+	    		T.topSideBlockLevelValue = 0;
 	    		T.congestionParameterLow = T.lowPrice;												//20181104  Added block level and congestion parameter functionality
 	    		T.lastBlockToForm = T.lowPrice;														//20181104  Added block level and congestion parameter functionality
 	    		LASTCONGESTIONPARAMETERLOW = T.lowPrice;
 	    		}
 	    	else
 	    		{
-	    		if ((! T.trendRunDown) && (T1.trendRunDown))
+	    		if ((T1.trendRunDown) && (! T.trendRunDown))
 	    			{
 	    			T.downSideBlockLevel = false;
 		    		T.topSideBlockLevel = true;
+		    		T.downSideBlockLevelValue = 0;
 		    		T.topSideBlockLevelValue = T.highPrice;
 		    		T.congestionParameterHigh = T.highPrice;										//20181104  Added block level and congestion parameter functionality
 		    		T.lastBlockToForm = T.highPrice;												//20181104  Added block level and congestion parameter functionality
@@ -1275,6 +1294,8 @@ public class PriceData
 	    			{
 	    			T.downSideBlockLevel = false;
 	    			T.topSideBlockLevel = false;
+	    			T.downSideBlockLevelValue = 0;
+	    			T.topSideBlockLevelValue = 0;
 	    			T.lastBlockToForm = 0;															//20181104  Added block level and congestion parameter functionality
 	    			}
 	    		}
@@ -1471,8 +1492,6 @@ public class PriceData
 		    	{
 		    		T.congestionAction = true;
 		    		T.congestionActionDown  = true;
-		    		T.downSideBlockLevel = true;
-		    		T.downSideBlockLevelValue = T.lowPrice;
 		    		T.typeOfTrading = "CAct";
 		    		T.typeOfTradingDirection = "Down";
 					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
@@ -1486,8 +1505,6 @@ public class PriceData
 		    		{
 		    			T.congestionAction = true;
 		    			T.congestionActionUp = true;
-		    			T.topSideBlockLevel = true;
-		    			T.topSideBlockLevelValue = T.highPrice;
 		    			T.typeOfTrading = "CAct";
 			    		T.typeOfTradingDirection = "Up";
 						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
@@ -1501,8 +1518,6 @@ public class PriceData
 		    	{
 		    		T.congestionAction = true;
 		    		T.congestionActionDown  = true;
-		    		T.downSideBlockLevel = true;
-		    		T.downSideBlockLevelValue = T.lowPrice;
 		    		T.typeOfTrading = "CAct";
 		    		T.typeOfTradingDirection = "Down";
 					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
@@ -1516,8 +1531,6 @@ public class PriceData
 		    		{
 		    			T.congestionAction = true;
 		    			T.congestionActionUp = true;
-		    			T.topSideBlockLevel = true;
-		    			T.topSideBlockLevelValue = T.highPrice;
 		    			T.typeOfTrading = "CAct";
 			    		T.typeOfTradingDirection = "Up";
 						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
@@ -1566,7 +1579,7 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 			if ((!T.trendRunUp) && (!T.trendRunDown))
 			{
-				if (((T1.congestionEntranceDown) || (T1.congestionEntranceDownDay2) ||(T1.congestionEntranceUp) || (T1.congestionActionDown) || (T1.congestionActionUp)|| (T1.congestionActionContinuedDown)) && (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
+				if (((T1.congestionEntranceDown) || (T1.congestionEntranceDownDay2) || (T1.congestionEntranceUp) || (T1.congestionActionDown) || (T1.congestionActionUp) || (T1.congestionActionContinuedDown)) && (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
 		    	{
 		    		T.congestionExit = true;
 		    		T.congestionExitUp = true;
@@ -1602,7 +1615,7 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 			if ((!T.trendRunUp) && (!T.trendRunDown))
 			{
-				if ((T1.congestionExitUp) && ((T2.congestionActionDown) || (T2.congestionEntranceDownDay1) || (T2.congestionEntranceDownDay2))&& (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
+				if ((T1.congestionExitUp) && ((T2.congestionActionDown) || (T2.congestionActionContinuedDown) || (T2.congestionEntranceDownDay1) || (T2.congestionEntranceDownDay2))&& (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
 		    	{
 		    		T.congestionExitDay2 = true;
 		    		T.congestionExitDay2Up = true;
@@ -1615,7 +1628,7 @@ public class PriceData
 		    	}
 		    	else
 		    	{
-		    		if ((T1.congestionExitDown) && ((T2.congestionActionUp) || (T2.congestionEntranceUpDay1) || (T2.congestionEntranceUpDay2)) && (T.closePrice < LASTCONGESTIONPARAMETERLOW))
+		    		if ((T1.congestionExitDown) && ((T2.congestionActionUp) || (T2.congestionActionContinuedUp) || (T2.congestionEntranceUpDay1) || (T2.congestionEntranceUpDay2)) && (T.closePrice < LASTCONGESTIONPARAMETERLOW))  //20200229 Add CAct2Up to If
 		    		{
 		    			T.congestionExitDay2 = true;
 		    			T.congestionExitDay2Down = true;
