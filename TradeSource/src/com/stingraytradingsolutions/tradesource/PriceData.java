@@ -1233,12 +1233,17 @@ public class PriceData
 	    		}
 	    	
 	    	//***************************************************************************************************************************************
-			//Determine block level
+			//  Determine if the current price bars blocks and set the following:
+	    	//            - block level indicator
+	    	//            - block level value
+	    	//            - last block to form
+	    	//            - congestion parameter
+	    	//
 	    	//  Logic:
 	    	//
-	    	//		Check for Congestion Action Down or Exit Down that switches to Congestion Action Up
+	    	//		Check for Congestion Entrance Down, Congestion Action Down or Exit Down that switches to Congestion Action Up
 	    	//			Set Block Level and value
-	    	//		Check for Congestion Action Up or Exit Up  that switches to Congestion Action Down
+	    	//		Check for Congestion Entrance Up, Congestion Action Up or Exit Up  that switches to Congestion Action Down
 	    	//			Set Block Level and value
 	    	//		If Congestion Entrance Down
 			//			Set Block Level and value
@@ -1250,7 +1255,8 @@ public class PriceData
 	    	//				Set Block levels and values to their defaults
 	    	//								
 	    	//***************************************************************************************************************************************
-	    	if (((T1.congestionEntranceDown = true) || (T1.congestionActionDown = true) || (T1.congestionExitDown = true)) &&  (T.closeAbovePLDot = true));
+
+	    	if (((T1.congestionEntranceDown == true) || (T1.congestionActionDown == true) || (T1.congestionActionContinuedDown == true) || (T1.congestionExitDown == true) || (T1.congestionExitDay2Down == true)) &&  (T.closeAbovePLDot == true))
 	    		{
 				T.downSideBlockLevel = false;
 				T.topSideBlockLevel = true;
@@ -1259,7 +1265,7 @@ public class PriceData
 				T.lastBlockToForm = T.highPrice;													//20181104  Added block level and congestion parameter functionality
 				}
 			
-	    	if (((T1.congestionEntranceUp = true) || (T1.congestionActionUp = true) || (T1.congestionExitUp = true)) && (T.closeBelowPLDot = true));
+	    	if (((T1.congestionEntranceUp == true) || (T1.congestionActionUp == true) || (T1.congestionActionContinuedUp == true) || (T1.congestionExitUp == true) || (T1.congestionExitDay2Up == true)) && (T.closeBelowPLDot == true))
 	    		{
 				T.downSideBlockLevel = true;
 				T.topSideBlockLevel = false;
@@ -1292,11 +1298,25 @@ public class PriceData
 	    			}
 	    		else
 	    			{
-	    			T.downSideBlockLevel = false;
-	    			T.topSideBlockLevel = false;
-	    			T.downSideBlockLevelValue = 0;
-	    			T.topSideBlockLevelValue = 0;
-	    			T.lastBlockToForm = 0;															//20181104  Added block level and congestion parameter functionality
+	    			if ((T1.trendRunUp) && (T.trendRunUp))
+	    				{
+	    				T.downSideBlockLevel = false;    			
+	    				T.topSideBlockLevel = false;
+	    				T.downSideBlockLevelValue = 0;
+	    				T.topSideBlockLevelValue = 0;
+	    				T.lastBlockToForm = 0;															
+	    				}
+	    			else
+	    				{
+	    				if ((T1.trendRunDown) && (T.trendRunDown))
+	    					{
+	    					T.downSideBlockLevel = false;    			
+	    					T.topSideBlockLevel = false;
+	    					T.downSideBlockLevelValue = 0;
+	    					T.topSideBlockLevelValue = 0;
+	    					T.lastBlockToForm = 0;
+	    					}
+	    				}
 	    			}
 	    		}
 	    	
@@ -1496,7 +1516,22 @@ public class PriceData
 		    		T.typeOfTradingDirection = "Down";
 					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
 					T.congestionParameterHigh = T1.congestionParameterHigh;							//20181104  Added block level and congestion parameter functionality
-					T.lastBlockToForm = T.lowPrice;													//20181104  Added block level and congestion parameter functionality
+					if (T.downSideBlockLevel)														//20200308
+					{																				//20200308
+					T.lastBlockToForm = T.lowPrice;													//20200308
+					} 																				//20200308
+				else																				//20200308
+					{																				//20200308
+					if (T.topSideBlockLevel)														//20200308
+						{																			//20200308
+						T.lastBlockToForm = T.highPrice;											//20200308
+						}																			//20200308
+					else																			//20200308
+						{																			//20200308
+							T.lastBlockToForm = T1.lastBlockToForm;									//20200308
+						}																			//20200308
+					}																				//20200308
+//*					T.lastBlockToForm = T.lowPrice;													//20181104  Added block level and congestion parameter functionality
 		    		System.out.println("Congestion Action Down: " +" Date: "+ T.priceDate);
 		    	}
 		    	else
@@ -1509,7 +1544,22 @@ public class PriceData
 			    		T.typeOfTradingDirection = "Up";
 						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
 						T.congestionParameterHigh = T1.congestionParameterHigh;						//20181104  Added block level and congestion parameter functionality
-						T.lastBlockToForm = T.highPrice;											//20181104  Added block level and congestion parameter functionality
+						if (T.downSideBlockLevel)													//20200308
+						{																			//20200308
+						T.lastBlockToForm = T.lowPrice;												//20200308
+						} 																			//20200308
+					else																			//20200308
+						{																			//20200308
+						if (T.topSideBlockLevel)													//20200308
+							{																		//20200308
+							T.lastBlockToForm = T.highPrice;										//20200308
+							}																		//20200308
+						else																		//20200308
+							{																		//20200308
+								T.lastBlockToForm = T1.lastBlockToForm;								//20200308
+							}																		//20200308
+						}																			//20200308
+//*						T.lastBlockToForm = T.highPrice;											//20181104  Added block level and congestion parameter functionality
 			    		System.out.println("Congestion Action Up: " +" Date: "+ T.priceDate);	
 		    		}
 		    	}	
@@ -1522,7 +1572,21 @@ public class PriceData
 		    		T.typeOfTradingDirection = "Down";
 					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
 					T.congestionParameterHigh = T1.congestionParameterHigh;							//20181104  Added block level and congestion parameter functionality
-					T.lastBlockToForm = T.lowPrice;													//20181104  Added block level and congestion parameter functionality
+					if (T.downSideBlockLevel)														//20200308
+					{																				//20200308
+					T.lastBlockToForm = T.lowPrice;													//20200308
+					} 																				//20200308
+				else																				//20200308
+					{																				//20200308
+					if (T.topSideBlockLevel)														//20200308
+						{																			//20200308
+						T.lastBlockToForm = T.highPrice;											//20200308
+						}																			//20200308
+					else																			//20200308
+						{																			//20200308
+							T.lastBlockToForm = T1.lastBlockToForm;									//20200308
+						}																			//20200308
+					}																				//20200308
 		    		System.out.println("Congestion Action Down: " +" Date: "+ T.priceDate);
 		    	}
 		    	else
@@ -1535,7 +1599,21 @@ public class PriceData
 			    		T.typeOfTradingDirection = "Up";
 						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
 						T.congestionParameterHigh = T1.congestionParameterHigh;						//20181104  Added block level and congestion parameter functionality
-						T.lastBlockToForm = T.highPrice;											//20181104  Added block level and congestion parameter functionality
+						if (T.downSideBlockLevel)														//20200308
+							{																			//20200308
+							T.lastBlockToForm = T.lowPrice;												//20200308
+							} 																			//20200308
+						else																			//20200308
+							{																			//20200308
+							if (T.topSideBlockLevel)													//20200308
+								{																		//20200308
+								T.lastBlockToForm = T.highPrice;										//20200308
+								}																		//20200308
+							else																		//20200308
+								{																		//20200308
+									T.lastBlockToForm = T1.lastBlockToForm;								//20200308
+								}																		//20200308
+							}																			//20200308
 			    		System.out.println("Congestion Action Up: " +" Date: "+ T.priceDate);	
 		    		}
 		    	}
@@ -1589,7 +1667,21 @@ public class PriceData
 		    		System.out.println("T close Price: " + T.closePrice);
 					T.congestionParameterLow = T1.congestionParameterLow;							//20181104  Added block level and congestion parameter functionality
 					T.congestionParameterHigh = T1.congestionParameterHigh;							//20181104  Added block level and congestion parameter functionality
-					T.lastBlockToForm = T1.lastBlockToForm;											//20181104  Added block level and congestion parameter functionality
+					if (T.downSideBlockLevel)														//20200308
+						{																			//20200308
+						T.lastBlockToForm = T.lowPrice;												//20200308
+						} 																			//20200308
+					else																			//20200308
+						{																			//20200308
+						if (T.topSideBlockLevel)													//20200308
+							{																		//20200308
+							T.lastBlockToForm = T.highPrice;										//20200308
+							}																		//20200308
+						else																		//20200308
+							{																		//20200308
+							T.lastBlockToForm = T1.lastBlockToForm;									//20200308
+							}																		//20200308
+						}																			//20200308
 		    		System.out.println("LASTCONGESTIONPARAMETERHIGH "+ LASTCONGESTIONPARAMETERHIGH);
 		    	}
 		    	else
@@ -1602,7 +1694,22 @@ public class PriceData
 			    		T.typeOfTradingDirection = "Down";
 						T.congestionParameterLow = T1.congestionParameterLow;						//20181104  Added block level and congestion parameter functionality
 						T.congestionParameterHigh = T1.congestionParameterHigh;						//20181104  Added block level and congestion parameter functionality
-						T.lastBlockToForm = T1.lastBlockToForm;										//20181104  Added block level and congestion parameter functionality
+						if (T.downSideBlockLevel)													//20200308
+						{																			//20200308
+						T.lastBlockToForm = T.lowPrice;												//20200308
+						} 																			//20200308
+					else																			//20200308
+						{																			//20200308
+						if (T.topSideBlockLevel)													//20200308
+							{																		//20200308
+							T.lastBlockToForm = T.highPrice;										//20200308
+							}																		//20200308
+						else																		//20200308
+							{																		//20200308
+							T.lastBlockToForm = T1.lastBlockToForm;									//20200308
+							}																		//20200308
+						}																			//20200308
+//*						T.lastBlockToForm = T1.lastBlockToForm;										//20181104  Added block level and congestion parameter functionality
 			    		System.out.println("Congestion Exit Down: " +" Date: "+ T.priceDate);
 		    		}
 		    	}
