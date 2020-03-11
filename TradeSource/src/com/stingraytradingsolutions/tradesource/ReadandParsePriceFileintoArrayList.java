@@ -363,7 +363,7 @@ public class ReadandParsePriceFileintoArrayList {
 		            	//FileWriter f17 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_CEXIT2DN.CSV");
 		            	//FileWriter f18 = new FileWriter("/Users/blynch63/Data/Greer/STS_ES_Monthly_CEXIT2UP.CSV");
 		            	
-		            	//FileWriter f0 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRIUP.CSV");
+		            	FileWriter f0 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_5_2s.CSV");
 		            	//FileWriter f1 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRIDN.CSV");
 		            	//FileWriter f2 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRAUP.CSV");
 		            	//FileWriter f3 = new FileWriter("/Users/blynch63/Data/STS_OILDAILY_TRADN.CSV");
@@ -495,6 +495,7 @@ public class ReadandParsePriceFileintoArrayList {
 		     		    		f18.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + newLine);
 		     		    	}
 */
+		      		    	f0.write(priceDatePLPal + "," + PriceData_T1.$5_2_Up + "," + PriceData_T1.$5_2_Down + "," + PriceData_T1.$5_2_Up_Ext + "," + PriceData_T1.$5_2_Down_Ext + newLine);
 		     		    	f14.write(priceDatePLPal + "," + dec.format(PriceData_T1.openPrice) + "," + dec.format(PriceData_T1.highPrice)  + "," + dec.format(PriceData_T1.lowPrice) + "," + dec.format(PriceData_T1.closePrice) + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.typeOfTrading + "," + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.congestionParameterHigh +"," + PriceData_T1.congestionParameterLow + "," + PriceData_T1.lastBlockToForm + "," + PriceData_T1.downSideBlockLevel + "," + PriceData_T1.downSideBlockLevelValue + "," + PriceData_T1.topSideBlockLevel + "," + PriceData_T1.topSideBlockLevelValue + newLine);
 		     		    	//if ((PriceData_T1.typeOfTrading == "TRA") && (PriceData_T1.typeOfTradingDirection == "Up"))
 		     		    	//{
