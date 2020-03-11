@@ -1670,8 +1670,8 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 			if ((!T.trendRunUp) && (!T.trendRunDown))
 			{
-				//*if (((T1.congestionEntranceDown) || (T1.congestionEntranceDownDay2) || (T1.congestionEntranceUp) || (T1.congestionActionDown) || (T1.congestionActionUp) || (T1.congestionActionContinuedDown)) && (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
-				if (((T1.congestionEntranceDown) || (T1.congestionEntranceDownDay2) || (T1.congestionEntranceUp) || (T1.congestionActionDown) || (T1.congestionActionUp) || (T1.congestionActionContinuedDown)) && ((T.closePrice > T.lastBlockToForm) && (T.closePrice > LASTCONGESTIONPARAMETERHIGH)))
+				if (((T1.congestionEntranceDown) || (T1.congestionEntranceDownDay2) || (T1.congestionEntranceUp) || (T1.congestionActionDown) || (T1.congestionActionUp) || (T1.congestionActionContinuedDown)) && (T.closePrice > LASTCONGESTIONPARAMETERHIGH))
+// 20200310		if (((T1.congestionEntranceDown) || (T1.congestionEntranceDownDay2) || (T1.congestionEntranceUp) || (T1.congestionActionDown) || (T1.congestionActionUp) || (T1.congestionActionContinuedDown)) && ((T.closePrice > T.lastBlockToForm) && (T.closePrice > LASTCONGESTIONPARAMETERHIGH)))
 		    	{
 		    		T.congestionExit = true;
 		    		T.congestionExitUp = true;
@@ -1701,8 +1701,8 @@ public class PriceData
 		    	}
 		    	else
 		    	{
-		    		//*if (((T1.congestionEntranceDown) || (T1.congestionEntranceDownDay2) || (T1.congestionEntranceUp) || (T1.congestionActionUp) || (T1.congestionActionDown) || (T1.congestionActionContinuedUp)) && (T.closePrice < LASTCONGESTIONPARAMETERLOW))
-		    		if (((T1.congestionEntranceDown) || (T1.congestionEntranceDownDay2) || (T1.congestionEntranceUp) || (T1.congestionActionUp) || (T1.congestionActionDown) || (T1.congestionActionContinuedUp)) && ((T.closePrice < T.lastBlockToForm) && (T.closePrice < LASTCONGESTIONPARAMETERLOW)))
+		    		if (((T1.congestionEntranceDown) || (T1.congestionEntranceDownDay2) || (T1.congestionEntranceUp) || (T1.congestionActionUp) || (T1.congestionActionDown) || (T1.congestionActionContinuedUp)) && (T.closePrice < LASTCONGESTIONPARAMETERLOW))
+// 20200310    		if (((T1.congestionEntranceDown) || (T1.congestionEntranceDownDay2) || (T1.congestionEntranceUp) || (T1.congestionActionUp) || (T1.congestionActionDown) || (T1.congestionActionContinuedUp)) && ((T.closePrice < T.lastBlockToForm) && (T.closePrice < LASTCONGESTIONPARAMETERLOW)))
 		    		{
 		    			T.congestionExit = true;
 		    			T.congestionExitDown = true;
