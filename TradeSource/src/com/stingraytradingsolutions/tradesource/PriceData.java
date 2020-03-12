@@ -951,19 +951,21 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 	    	if (T.highPrice >= T1.highPrice)
 	    	{
-	    		$5_2_Down = (T.highPrice * 2) - T1.highPrice;
-		    	$5_2_Down_Ext = (T.$5_2_Down *2) - T.highPrice; 
-	    	}
+//	    		$5_2_Down = (T.highPrice * 2) - T1.highPrice;
+//		    	$5_2_Down_Ext = (T.$5_2_Down *2) - T.highPrice; 
+	    		$5_2_Down = Math.round(((T.highPrice * 2) - T1.highPrice) * 100.0) / 100.0;
+		    	$5_2_Down_Ext = Math.round(((T.$5_2_Down *2) - T.highPrice) * 100.0) / 100.0;
+		    }
 	    	
 	    	if (T.highPrice < T1.highPrice)
 	    	{
 	    		if (((T.highPrice * 2) - T1.highPrice) < T.closePrice)
 	    		{
-	    		$5_1_Up = (T.highPrice * 2) - T1.highPrice;
+	    		$5_1_Up = Math.round(((T.highPrice * 2) - T1.highPrice) * 100.0) / 100.0;
 	    		}
 	    		else
 	    			{
-	    			$5_3_Down = (T.highPrice * 2) - T1.highPrice;
+	    			$5_3_Down = Math.round(((T.highPrice * 2) - T1.highPrice) * 100.0) / 100.0;
 	    			}
 	    	}
 	    	
@@ -972,19 +974,19 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 	    	if (T.lowPrice <= T1.lowPrice)
 	    	{
-	    		$5_2_Up = (T.lowPrice * 2) - T1.lowPrice;
-		    	$5_2_Up_Ext = (T.$5_2_Up *2) - T.lowPrice;
+	    		$5_2_Up = Math.round(((T.lowPrice * 2) - T1.lowPrice) * 100.0) / 100.0;
+		    	$5_2_Up_Ext = Math.round(((T.$5_2_Up *2) - T.lowPrice) * 100.0) / 100.0;
 	    	}
 	    	
 	    	if (T.lowPrice > T1.lowPrice)
 	    	{
 	    		if (((T.lowPrice * 2) - T1.lowPrice) <= T.closePrice)
 	    		{
-	    			$5_3_Up = (T.lowPrice * 2) - T1.lowPrice;	
+	    			$5_3_Up = Math.round(((T.lowPrice * 2) - T1.lowPrice) * 100.0) / 100.0;	
 	    		}
 	    		else
 	    		{
-	    		$5_1_Down = (T.lowPrice * 2) - T1.lowPrice;
+	    		$5_1_Down = Math.round(((T.lowPrice * 2) - T1.lowPrice) * 100.0) / 100.0;
 	    		}
 	    	   	
 	    	}
@@ -1041,22 +1043,22 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 	    	//Calculate 5/9's and closed 5/9's 
 	    	//***************************************************************************************************************************************
-	    	$5_9_Up = (T.lowPrice * 2) - T1.highPrice;
-	    	$5_9_Down = (T.highPrice * 2) - T1.lowPrice;
+	    	$5_9_Up = Math.round(((T.lowPrice * 2) - T1.highPrice) * 100.0) / 100.0;
+	    	$5_9_Down = Math.round(((T.highPrice * 2) - T1.lowPrice) * 100.0) / 100.0;
 	    	if (T.highPrice < T1.closePrice)
 	    	{
-	    		$5_9_Down_Closed = (T1.closePrice * 2) - T1.lowPrice;
+	    		$5_9_Down_Closed = Math.round(((T1.closePrice * 2) - T1.lowPrice) * 100.0) / 100.0;
 	    	}
 	    	
 	    	if (T.lowPrice > T1.closePrice)
 	    	{
-	    		$5_9_Up_Closed  = (T1.closePrice * 2) - T1.highPrice;
+	    		$5_9_Up_Closed  = Math.round(((T1.closePrice * 2) - T1.highPrice) * 100.0) / 100.0;
 	    	}
 	    	//***************************************************************************************************************************************
 	    	//Calculate 5/9 Extensions
 	    	//***************************************************************************************************************************************
-	    	$5_9_Up_Ext = (T.$5_9_Up *2) - T.lowPrice;
-	    	$5_9_Down_Ext = (T.$5_9_Down *2) - T.highPrice; 
+	    	$5_9_Up_Ext = Math.round(((T.$5_9_Up *2) - T.lowPrice) * 100.0) / 100.0;
+	    	$5_9_Down_Ext = Math.round(((T.$5_9_Down *2) - T.highPrice) * 100.0) / 100.0; 
 
 	    	//***************************************************************************************************************************************
 	    	//Calculate 6/1 Up, 6/5 Down, 6/7 Down

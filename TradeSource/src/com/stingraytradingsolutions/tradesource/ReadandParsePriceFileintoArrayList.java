@@ -388,6 +388,7 @@ public class ReadandParsePriceFileintoArrayList {
 
 		     		    String newLine = System.getProperty("line.separator");
 
+		     		    f0.write("Date" + "," + "5_9_Up" + "," + "5_9_Down" + "," + "5_9_Up_Ext" + "," + "5_9_Down_Ext" + "," + "5_9_Up_Closed" + "," + "5_9_Down_Closed" + "," + "5_9_Up_Ext_Closed" + "," + "5_9_Down_Ext_Closed" + "," + "5/2 Up" + "," + "5/2 Down"  + "," + "5/2 Ext Up" + "," + "5/2 Ext Down" + newLine);
 		     		    f14.write("Date" + "," + "Open" + "," + "High"  + "," + "Low" + "," + "Close" + "," + "ToT" + "," + "Type of Trading" + "," + "Direction" + "," + "Cong High" + "," + "Cong Low" + "," + "Last Block" + "," + "Down Side Block" + "," + "Down Side Block Value" + "," + "Top Side Block" + "," + "Top Side Block Value" + newLine);
 		     		    for(row=0;row<size;row++)
 		     		       {
@@ -495,7 +496,7 @@ public class ReadandParsePriceFileintoArrayList {
 		     		    		f18.write(priceDatePLPal + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + newLine);
 		     		    	}
 */
-		      		    	f0.write(priceDatePLPal + "," + PriceData_T1.$5_2_Up + "," + PriceData_T1.$5_2_Down + "," + PriceData_T1.$5_2_Up_Ext + "," + PriceData_T1.$5_2_Down_Ext + newLine);
+		      		    	f0.write(priceDatePLPal + "," + PriceData_T1.$5_9_Up + "," + PriceData_T1.$5_9_Down + "," + PriceData_T1.$5_9_Up_Ext + "," + PriceData_T1.$5_9_Down_Ext + "," + PriceData_T1.$5_9_Up_Closed + "," + PriceData_T1.$5_9_Down_Closed + "," + "0" + "," + "0" + "," + PriceData_T1.$5_2_Up + "," + PriceData_T1.$5_2_Down + "," + PriceData_T1.$5_2_Up_Ext + "," + PriceData_T1.$5_2_Down_Ext + newLine);
 		     		    	f14.write(priceDatePLPal + "," + dec.format(PriceData_T1.openPrice) + "," + dec.format(PriceData_T1.highPrice)  + "," + dec.format(PriceData_T1.lowPrice) + "," + dec.format(PriceData_T1.closePrice) + "," + PriceData_T1.typeOfTrading + " " + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.typeOfTrading + "," + PriceData_T1.typeOfTradingDirection + "," + PriceData_T1.congestionParameterHigh +"," + PriceData_T1.congestionParameterLow + "," + PriceData_T1.lastBlockToForm + "," + PriceData_T1.downSideBlockLevel + "," + PriceData_T1.downSideBlockLevelValue + "," + PriceData_T1.topSideBlockLevel + "," + PriceData_T1.topSideBlockLevelValue + newLine);
 		     		    	//if ((PriceData_T1.typeOfTrading == "TRA") && (PriceData_T1.typeOfTradingDirection == "Up"))
 		     		    	//{
@@ -540,7 +541,7 @@ public class ReadandParsePriceFileintoArrayList {
 
 		    		    	
 		     		       }
-		     		       //f0.close();
+		     		       f0.close();
 		     		       //f1.close();
 		     		       //f2.close();
 		     		       //f3.close();
