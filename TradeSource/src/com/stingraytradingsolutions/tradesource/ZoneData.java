@@ -47,12 +47,12 @@ public class ZoneData extends PriceData{
 	{
 
 		//* get the zone size variables from the configuration file via the Properties class
-		double minimumZoneSizePercent = Double.parseDouble(p.getProperty("MinimumZoneSizePercentage"))/100;
-		double oversizedZonePercent = Double.parseDouble(p.getProperty("OversizedZonePercentage"))/100;
-		double toolNearClosePercentage = Double.parseDouble(p.getProperty("ToolNearClosePercentage"))/100;
-		double toolNearZonePercentage = Double.parseDouble(p.getProperty("ToolNearZonePercentage"))/100;
-		double oversizedZoneReductionPercentage = Double.parseDouble(p.getProperty("OversizedZoneReductionPercentage"))/100;
-		double expandedZonePercentage = Double.parseDouble(p.getProperty("ExpandedZonePercentage"))/100;
+		double minimumZoneSizePercent = Math.round((Double.parseDouble(p.getProperty("MinimumZoneSizePercentage"))/100) * 100.0) / 100.0;
+		double oversizedZonePercent = Math.round((Double.parseDouble(p.getProperty("OversizedZonePercentage"))/100) * 100.0) / 100.0;
+		double toolNearClosePercentage = Math.round((Double.parseDouble(p.getProperty("ToolNearClosePercentage"))/100) * 100.0) / 100.0;
+		double toolNearZonePercentage = Math.round((Double.parseDouble(p.getProperty("ToolNearZonePercentage"))/100) * 100.0) / 100.0;
+		double oversizedZoneReductionPercentage = Math.round((Double.parseDouble(p.getProperty("OversizedZoneReductionPercentage"))/100) * 100.0) / 100.0;
+		double expandedZonePercentage = Math.round((Double.parseDouble(p.getProperty("ExpandedZonePercentage"))/100) * 100.0) / 100.0;
 		
 		double averageRange = 0;
 		double sumOfPriceBarRange = 0;
@@ -74,10 +74,10 @@ public class ZoneData extends PriceData{
 		{	
 			numberOfPricesBarsToAverage = size;
 		}
-		averageRange = (sumOfPriceBarRange/numberOfPricesBarsToAverage);
-		double minimumZoneSize = averageRange * minimumZoneSizePercent;
-		double sizeOfSingleToolZone = minimumZoneSize * 2;
-		double sizeOfOversizedZone = averageRange * oversizedZonePercent;
+		averageRange = Math.round(((sumOfPriceBarRange/numberOfPricesBarsToAverage)) * 100.0) / 100.0;
+		double minimumZoneSize = Math.round((averageRange * minimumZoneSizePercent) * 100.0) / 100.0;
+		double sizeOfSingleToolZone = Math.round((minimumZoneSize * 2) * 100.0) / 100.0;
+		double sizeOfOversizedZone = Math.round((averageRange * oversizedZonePercent) * 100.0) / 100.0;
 		
 		//* Set values in the zone statistics class
 		zs.setTicker ("TBD");
@@ -254,7 +254,7 @@ public class ZoneData extends PriceData{
 		{		
 			if (T.zoneWidth < zs.minimumZoneSize)
 			{	
-				double zoneVariance = (zs.minimumZoneSize - T.zoneWidth)/2;
+				double zoneVariance = Math.round(((zs.minimumZoneSize - T.zoneWidth)/2) * 100.0) / 100.0;
 				for(row=0;row<size;row++)
 				{
 					ZoneTools ZoneRulesTools = new ZoneTools(alZoneRules.get(row));
@@ -262,7 +262,7 @@ public class ZoneData extends PriceData{
 					{
 						if (ZoneRulesTools.zoneToolValue == T.zoneHigh)
 						{
-							double highToolValue = ZoneRulesTools.zoneToolValue + zoneVariance;
+							double highToolValue = Math.round((ZoneRulesTools.zoneToolValue + zoneVariance) * 100.0) / 100.0;
 							ZoneRulesTools.setZoneToolValue(highToolValue);
 							ZoneRulesTools.zoneToolRule = "Rule 4";												// 20181105 Add new field for rule used  
 							alZoneRules.set(row, ZoneRulesTools);
@@ -271,7 +271,7 @@ public class ZoneData extends PriceData{
 						{
 							if (ZoneRulesTools.zoneToolValue == T.zoneLow)
 							{
-								double lowToolValue = ZoneRulesTools.zoneToolValue - zoneVariance;
+								double lowToolValue = Math.round((ZoneRulesTools.zoneToolValue - zoneVariance) * 100.0) / 100.0;
 								ZoneRulesTools.setZoneToolValue(lowToolValue);
 								ZoneRulesTools.zoneToolRule = "Rule 4";												// 20181105 Add new field for rule used  
 								alZoneRules.set(row, ZoneRulesTools);
@@ -818,7 +818,7 @@ public class ZoneData extends PriceData{
 		}	
 		T.zoneHigh = Collections.max(alZoneToolsValue);
 		T.zoneLow = Collections.min(alZoneToolsValue);
-		T.zoneWidth = T.zoneHigh - T.zoneLow;
+		T.zoneWidth = Math.round((T.zoneHigh - T.zoneLow) * 100.0) / 100.0;
 	}
 
 	/**

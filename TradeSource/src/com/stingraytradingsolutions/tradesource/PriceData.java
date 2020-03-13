@@ -517,7 +517,7 @@ public class PriceData
     	//***************************************************************************************************************************************		
 		public void setPriceAvg(PriceData T)
 		{
-		 	priceAvg = ((T.highPrice + T.lowPrice + T.closePrice)/3);			
+		 	priceAvg = Math.round((((T.highPrice + T.lowPrice + T.closePrice)/3)) * 100.0) / 100.0;		
 		}
     	//***************************************************************************************************************************************
 		//* 
@@ -529,7 +529,7 @@ public class PriceData
     	//***************************************************************************************************************************************
 		public void setPLDot(PriceData T, PriceData T1, PriceData T2)
 		{
-			plDot = ((T.priceAvg + T1.priceAvg + T2.priceAvg)/3);
+			plDot = Math.round((((T.priceAvg + T1.priceAvg + T2.priceAvg)/3)) * 100.0) / 100.0;
 		}
     	//***************************************************************************************************************************************
 		//* 
@@ -776,16 +776,16 @@ public class PriceData
 			//***************************************************************************************************************************************
 			//Calculate the Pl Dot and the Red Bird Dot
 	    	//***************************************************************************************************************************************
-			plDot = ((T.priceAvg + T1.priceAvg + T2.priceAvg)/3);
-			redBirdDot = ((T.priceAvg + T1.priceAvg + T.closePrice)/3);
+			plDot = Math.round((((T.priceAvg + T1.priceAvg + T2.priceAvg)/3)) * 100.0) / 100.0;   
+			redBirdDot = Math.round((((T.priceAvg + T1.priceAvg + T.closePrice)/3)) * 100.0) / 100.0;
 			
 	    	//***************************************************************************************************************************************
 			//Calculate range of price bar and the NEAR value for use in the Zone Rules
 	    	//***************************************************************************************************************************************    
-	    	priceBarRange  = T.highPrice - T.lowPrice;
-	    	priceBarNear  = T.priceBarRange / Double.parseDouble(p.getProperty("ToolNearClosePercentage"));
-	    	priceBarNearCloseHigh = T.closePrice + priceBarNear;
-	    	priceBarNearCloseLow = T.closePrice - priceBarNear;
+	    	priceBarRange  = Math.round((T.highPrice - T.lowPrice) * 100.0) / 100.0;
+	    	priceBarNear  = Math.round((T.priceBarRange / Double.parseDouble(p.getProperty("ToolNearClosePercentage"))) * 100.0) / 100.0;
+	    	priceBarNearCloseHigh = Math.round((T.closePrice + priceBarNear) * 100.0) / 100.0;
+	    	priceBarNearCloseLow = Math.round((T.closePrice - priceBarNear) * 100.0) / 100.0;
 	    
 	    	//***************************************************************************************************************************************
 			// Calculate the Pl Dot distance and momentum
@@ -795,10 +795,10 @@ public class PriceData
 	    	// Measure the distance and set PL Dot momentum as Increasing, Decreasing, or Equidistant
 	    	//
 	    	//***************************************************************************************************************************************
-			distanceBetweenPlDots = Math.abs((T.plDot - T1.plDot));
+			distanceBetweenPlDots = Math.round((Math.abs((T.plDot - T1.plDot))) * 100.0) / 100.0;
 			double distanceBetweenPLDotsRange = .1;
-			double distanceBetweenPLDotsHighEndOfRange = T1.distanceBetweenPlDots + (T1.distanceBetweenPlDots * distanceBetweenPLDotsRange);
-			double distanceBetweenPLDotsLowEndOfRange = T1.distanceBetweenPlDots - (T1.distanceBetweenPlDots * distanceBetweenPLDotsRange);
+			double distanceBetweenPLDotsHighEndOfRange = Math.round((T1.distanceBetweenPlDots + (T1.distanceBetweenPlDots * distanceBetweenPLDotsRange)) * 100.0) / 100.0;
+			double distanceBetweenPLDotsLowEndOfRange = Math.round((T1.distanceBetweenPlDots - (T1.distanceBetweenPlDots * distanceBetweenPLDotsRange)) * 100.0) / 100.0;
 			
 			
 			
@@ -826,9 +826,9 @@ public class PriceData
 			//***************************************************************************************************************************************
 			// Determine where the PL Dot is in relation to the price bar
 	    	//***************************************************************************************************************************************
-			double priceBarMidPoint = T.lowPrice + (T.priceBarRange * .50);
-			double priceBarUpperQtrPoint = T.highPrice - (T.priceBarRange * .25);
-			double priceBarLowerQtrPoint = T.lowPrice + (T.priceBarRange * .25);
+			double priceBarMidPoint = Math.round((T.lowPrice + (T.priceBarRange * .50)) * 100.0) / 100.0;
+			double priceBarUpperQtrPoint = Math.round((T.highPrice - (T.priceBarRange * .25)) * 100.0) / 100.0;
+			double priceBarLowerQtrPoint = Math.round((T.lowPrice + (T.priceBarRange * .25)) * 100.0) / 100.0;
 			
 			if (T.plDot >= T.lowPrice  && T.plDot < priceBarMidPoint)
 			{
@@ -911,9 +911,9 @@ public class PriceData
 			//***************************************************************************************************************************************
 			// Determine if the closing price is near the current PL Dot
 	    	//***************************************************************************************************************************************
-			double closeNearPLDotRange = T.priceBarRange * .2;
-			double closeNearPLDotUpperPoint = T.closePrice + closeNearPLDotRange;
-			double closeNearPLDotLowerPoint = T.closePrice - closeNearPLDotRange;
+			double closeNearPLDotRange = Math.round((T.priceBarRange * .2) * 100.0) / 100.0;
+			double closeNearPLDotUpperPoint = Math.round((T.closePrice + closeNearPLDotRange) * 100.0) / 100.0;
+			double closeNearPLDotLowerPoint = Math.round((T.closePrice - closeNearPLDotRange) * 100.0) / 100.0;
 			
 			if (T.plDot >= closeNearPLDotLowerPoint  && T.plDot <= closeNearPLDotUpperPoint)
 			{
@@ -923,7 +923,7 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 	    	//Calculate Main Channel Line
 	    	//***************************************************************************************************************************************
-	    	mcLine = (T.plDot * 2) - T1.plDot;
+			mcLine = Math.round(((T.plDot * 2) - T1.plDot) * 100.0) / 100.0;
 	   
 			
 	    	//***************************************************************************************************************************************
@@ -951,8 +951,6 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 	    	if (T.highPrice >= T1.highPrice)
 	    	{
-//	    		$5_2_Down = (T.highPrice * 2) - T1.highPrice;
-//		    	$5_2_Down_Ext = (T.$5_2_Down *2) - T.highPrice; 
 	    		$5_2_Down = Math.round(((T.highPrice * 2) - T1.highPrice) * 100.0) / 100.0;
 		    	$5_2_Down_Ext = Math.round(((T.$5_2_Down *2) - T.highPrice) * 100.0) / 100.0;
 		    }
@@ -1000,7 +998,7 @@ public class PriceData
 	    			{
 	    			if (((T1.closePrice * 2) - T1.lowPrice) > T.closePrice)
 	    				{
-	    				$5_1_Down_Closed = (T1.closePrice * 2) - T1.lowPrice;
+	    				$5_1_Down_Closed = Math.round(((T1.closePrice * 2) - T1.lowPrice) * 100.0) / 100.0;
 	    				}
 	    			}
 	     	}
@@ -1011,7 +1009,7 @@ public class PriceData
 	    			{
 	    			if (((T1.closePrice * 2) - T1.highPrice) < T.closePrice)
 	    				{
-	    				$5_1_Up_Closed = (T1.closePrice * 2) - T1.highPrice;
+	    				$5_1_Up_Closed = Math.round(((T1.closePrice * 2) - T1.highPrice) * 100.0) / 100.0;
 	    				}
 	    			}
 	    		}
@@ -1025,7 +1023,7 @@ public class PriceData
 	    			{
 	    			if (((T1.closePrice * 2) - T1.highPrice) > T.closePrice)
 	    				{
-	    				$5_3_Down_Closed = (T1.closePrice * 2) - T1.highPrice;
+	    				$5_3_Down_Closed = Math.round(((T1.closePrice * 2) - T1.highPrice) * 100.0) / 100.0;
 	    				}
 	    			}
 	    	}
@@ -1035,7 +1033,7 @@ public class PriceData
 	    		{
 	    			if (((T1.closePrice * 2) - T1.lowPrice) < T.closePrice)
 					{
-						$5_3_Up_Closed = (T1.closePrice * 2) - T1.lowPrice;
+						$5_3_Up_Closed = Math.round(((T1.closePrice * 2) - T1.lowPrice) * 100.0) / 100.0;
 					}
 	    		}
 	     	}
@@ -1063,7 +1061,7 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 	    	//Calculate 6/1 Up, 6/5 Down, 6/7 Down
 	    	//***************************************************************************************************************************************
-	    	HIGHTHRUPLDOT = (T.plDot * 2) - T.highPrice;
+	    	HIGHTHRUPLDOT = Math.round(((T.plDot * 2) - T.highPrice) * 100.0) / 100.0;
 	    	if (HIGHTHRUPLDOT < T.closePrice)
 	    	{
 	    		$6_1_Up = HIGHTHRUPLDOT;
@@ -1089,7 +1087,7 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 	    	//Calculate 6/1 Down, 6/5 Up, 6/7 Up
 	    	//***************************************************************************************************************************************
-	    	LOWTHRUPLDOT = (T.plDot * 2) - T.lowPrice;
+	    	LOWTHRUPLDOT = Math.round(((T.plDot * 2) - T.lowPrice) * 100.0) / 100.0;
 	    	if (LOWTHRUPLDOT > T.closePrice)
 	    	{
 	    		$6_1_Down = LOWTHRUPLDOT;
@@ -1130,9 +1128,9 @@ public class PriceData
 	    	//***************************************************************************************************************************************
 	    	//Calculate 1/1 Dot, 1/1 High and 1/1 Low
 	    	//***************************************************************************************************************************************
-	    	$1_1_Dot = (T.priceAvg);
-	    	$1_1_High = ((T.$1_1_Dot * 2) - T.lowPrice);
-	    	$1_1_Low = ((T.$1_1_Dot * 2) - T.highPrice);;
+	    	$1_1_Dot = Math.round(((T.priceAvg)) * 100.0) / 100.0;
+	    	$1_1_High = Math.round((((T.$1_1_Dot * 2) - T.lowPrice)) * 100.0) / 100.0;
+	    	$1_1_Low = Math.round((((T.$1_1_Dot * 2) - T.highPrice)) * 100.0) / 100.0;
 	    	
 	    	//***************************************************************************************************************************************
 	    	//Calculate 5/2 Extensions
